@@ -80,47 +80,34 @@ fi
 
 have latexmk && have biber || { say "ERROR: latexmk or biber still missing."; exit 1; }
 
-# ---------------------------------------------------------------- 3b. biber works?
-# biber is a PAR-packed Perl program: at start it unpacks its modules and compiled
-# parts (.so) into /tmp/par-*. If /tmp is noexec / full / quota-limited, or another
-# Perl leaks in via PERL5LIB, it dies with "POSIX::_exit"/"POSIX::WNOHANG" errors.
-# Repair: unpack into $HOME (PAR_GLOBAL_TEMP) and ignore foreign Perl variables.
-PAR_DIR="$HOME/.cache/par-biber"
-MARK="Wrapper created by install_latex.sh"
-BIBER_PATH=$(command -v biber)
-if grep -q "$MARK" "$BIBER_PATH" 2>/dev/null; then BIBER_REAL="$BIBER_PATH.real"; else BIBER_REAL="$BIBER_PATH"; fi
+# ---------------------------------------------------------------- 3b. bibliography backend
+# The project uses biber by default. The prebuilt biber needs a recent glibc (>= 2.23);
+# on older systems (e.g. CentOS 7, glibc 2.17) it crashes with "POSIX::_exit" /
+# "POSIX::WNOHANG" errors. In that case create a local, git-ignored bibbackend.tex
+# that makes RF_PROJECT.tex use the bibtex backend instead.
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+BACKEND_FILE="$REPO_ROOT/bibbackend.tex"
 
 if biber --version >/dev/null 2>&1; then
-    say "biber runs correctly."
+    say "biber runs correctly (backend: biber)."
+    BIB_BACKEND=biber
+    if [ -f "$BACKEND_FILE" ]; then
+        rm -f "$BACKEND_FILE"
+        say "Removed $BACKEND_FILE (biber works, no override needed)."
+        CHANGED=1
+    fi
 else
-    say "biber is installed but crashes. Trying to repair..."
-    mkdir -p "$PAR_DIR"; rm -rf "${PAR_DIR:?}"/* 2>/dev/null
-    if env -u PERL5LIB -u PERLLIB -u PERL5OPT PAR_GLOBAL_TEMP="$PAR_DIR" "$BIBER_REAL" --version >/dev/null 2>&1; then
-        [ "$BIBER_REAL" = "$BIBER_PATH" ] && mv "$BIBER_PATH" "$BIBER_PATH.real" && BIBER_REAL="$BIBER_PATH.real"
-        cat > "$BIBER_PATH" <<WRAP
-#!/usr/bin/env bash
-# $MARK: run biber unpacking into \$HOME and without foreign Perl settings.
-export PAR_GLOBAL_TEMP="$PAR_DIR"
-mkdir -p "\$PAR_GLOBAL_TEMP"
-exec env -u PERL5LIB -u PERLLIB -u PERL5OPT "$BIBER_REAL" "\$@"
-WRAP
-        chmod +x "$BIBER_PATH"
-        if biber --version >/dev/null 2>&1; then
-            say "Fixed: biber now unpacks into $PAR_DIR (wrapper: $BIBER_PATH)."
-            CHANGED=1
-        else
-            say "ERROR: wrapper written but biber still fails."; exit 1
-        fi
+    say "biber cannot run on this machine ($(ldd --version 2>&1 | head -n 1); biber needs glibc >= 2.23)."
+    have bibtex || { say "ERROR: bibtex not found either."; exit 1; }
+    BIB_BACKEND=bibtex
+    if grep -qs 'bibtex' "$BACKEND_FILE"; then
+        say "Project already uses the bibtex backend ($BACKEND_FILE)."
     else
-        say "ERROR: biber still crashes. Diagnostics (send these):"
-        say "  PERL5LIB='${PERL5LIB:-}' PERLLIB='${PERLLIB:-}' PERL5OPT='${PERL5OPT:-}'"
-        say "  /tmp mount: $(mount 2>/dev/null | grep -E ' /tmp ' || echo 'not a separate mount')"
-        say "  /tmp space: $(df -h /tmp 2>/dev/null | tail -n 1)"
-        say "  home space: $(df -h "$HOME" 2>/dev/null | tail -n 1)"
-        say "  glibc: $(ldd --version 2>&1 | head -n 1)"
-        say "  biber: $(file -L "$BIBER_REAL" 2>/dev/null | cut -c1-120)"
-        env PAR_GLOBAL_TEMP="$PAR_DIR" "$BIBER_REAL" --version 2>&1 | head -n 5
-        exit 1
+        printf '%s\n' '% Local override created by scripts/install_latex.sh (git-ignored).' \
+                      '\newcommand{\bibbackend}{bibtex}' > "$BACKEND_FILE"
+        say "Created $BACKEND_FILE: the project now uses the bibtex backend."
+        say "Run 'latexmk -C RF_PROJECT.tex' once to drop stale biber build files."
+        CHANGED=1
     fi
 fi
 
@@ -189,7 +176,11 @@ fi
 # ---------------------------------------------------------------- Summary
 echo
 latexmk -v | sed -n 2p
-biber --version | head -n 1
+if [ "$BIB_BACKEND" = biber ]; then
+    biber --version | head -n 1
+else
+    echo "bibliography backend: bibtex (biber cannot run on this machine)"
+fi
 echo
 
 if [ "$PENDING" -eq 1 ]; then

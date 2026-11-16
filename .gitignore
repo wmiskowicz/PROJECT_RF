@@ -15,3 +15,5 @@
 *-blx.bib
 *.synctex(busy)
 RF_PROJECT.pdf
+# Local, machine-specific bibliography backend override (see scripts/install_latex.sh)
+bibbackend.tex

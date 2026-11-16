@@ -54,10 +54,10 @@ Check:
 
 ```sh
 latexmk -v
-biber --version
+biber --version      # may fail on old systems, see Troubleshooting (not needed then)
 ```
 
-Both should print a version number.
+latexmk should print a version number. If biber fails with Perl errors, see Troubleshooting: the script switches the project to the bibtex backend.
 
 ## 5. Build in VS Code (Remote - SSH)
 
@@ -124,28 +124,17 @@ tlmgr install <package-name>
 
 **`tlmgr: command not found`:** the PATH isn't set. Run `source ~/.bashrc`, or check that `~/texlive/bin/x86_64-linux` exists (on a different CPU the folder name differs, e.g. `aarch64-linux`).
 
-**`biber --version` prints Perl errors** (e.g. `POSIX::_exit` not predeclared, `POSIX::WNOHANG not allowed`, `IPC/Cmd.pm`): biber unpacks its modules into `/tmp/par-*` at start. If `/tmp` is `noexec`, full or quota-limited (or another Perl leaks in via `PERL5LIB`), this fails. The script fixes it automatically. By hand:
+**`biber --version` prints Perl errors** (e.g. `POSIX::_exit` not predeclared, `POSIX::WNOHANG not allowed`, `IPC/Cmd.pm`, or `GLIBC_2.23 not found`): the prebuilt `biber` needs glibc 2.23 or newer. Check with `ldd --version`; on CentOS 7 (glibc 2.17) it cannot run. The script handles this automatically: it creates a local, git-ignored file `bibbackend.tex` in the repository root, and `RF_PROJECT.tex` then uses the `bibtex` backend instead of `biber`. Other machines are not affected. By hand:
 
 ```sh
-mkdir -p ~/.cache/par-biber
-PAR_GLOBAL_TEMP=~/.cache/par-biber env -u PERL5LIB -u PERLLIB -u PERL5OPT biber --version
+cat > bibbackend.tex <<'EOF'
+\newcommand{\bibbackend}{bibtex}
+EOF
+latexmk -C RF_PROJECT.tex      # drop stale biber build files
+latexmk -pdf RF_PROJECT.tex
 ```
 
-If that prints a version, make it permanent by wrapping biber:
-
-```sh
-cd ~/texlive/bin/x86_64-linux
-mv biber biber.real
-cat > biber <<'WRAP'
-#!/usr/bin/env bash
-export PAR_GLOBAL_TEMP="$HOME/.cache/par-biber"
-mkdir -p "$PAR_GLOBAL_TEMP"
-exec env -u PERL5LIB -u PERLLIB -u PERL5OPT "$(dirname "$(readlink -f "$0")")/biber.real" "$@"
-WRAP
-chmod +x biber
-```
-
-If it still fails, run `df -h /tmp ~; mount | grep /tmp; ldd --version` and look for `noexec`, no free space, or an old glibc.
+Delete `bibbackend.tex` to go back to `biber`.
 
 **Warning `Font shape 'OT4/pcr/m/it' undefined`:** harmless. Courier has no italic in the Polish font encoding, so upright Courier is used.
 

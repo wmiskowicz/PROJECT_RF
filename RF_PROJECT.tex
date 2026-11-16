@@ -32,6 +32,10 @@
 \usepackage{hyperref}
 
 % --- < bibliography > ---
+% Default backend is biber. On machines where biber cannot run (e.g. old glibc),
+% scripts/install_latex.sh creates a local, git-ignored bibbackend.tex that
+% defines \bibbackend as bibtex.
+\IfFileExists{bibbackend.tex}{\input{bibbackend.tex}}{\newcommand{\bibbackend}{biber}}
 \usepackage[
 style=numeric,
 sorting=none,
@@ -43,7 +47,7 @@ backref=false,
 isbn=true,
 url=false,
 maxbibnames=3,
-backend=biber
+backend=\bibbackend
 ]{biblatex}
 
 \usepackage{csquotes}
