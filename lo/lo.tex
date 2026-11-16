@@ -1,0 +1,56 @@
+% =============================================================================
+%  Block:   LO -- local oscillator (VCO + buffer)
+%  Dir:     lo/
+%  Images:  lo/images/  ->  \includegraphics{lo/images/<file>}
+%  Built from RF_PROJECT.tex via \include{lo/lo}
+% =============================================================================
+
+\chapter{LO -- Local Oscillator}
+\label{ch:lo}
+
+% -----------------------------------------------------------------------------
+\section{Owner}
+\blockowner{} % <- fill in: Name Surname
+
+% -----------------------------------------------------------------------------
+\section{Requirements}
+Source: design proposal v0.1~\cite{design_proposal} and project
+specification~\cite{project_spec}. Values become binding after approval at
+meeting~2; every change goes through the changelog below.
+
+\begin{requirements}
+	\req{LO-01}{Frequency and tuning}{6.000\,GHz; tuning range $\geq \pm3\%$ (5.82--6.18\,GHz)}{\dpref{7}}
+	\req{LO-02}{Phase noise}{$\leq -110$\,dBc/Hz at 1\,MHz, slope $-20$\,dB/dec.\ ($\approx 0.8^\circ$ rms in 100\,kHz--10\,MHz)}{\dpref{7}}
+	\req{LO-03}{Output amplitude (I3, I8)}{0.6\,V peak diff.\ (1.2\,Vpp) $\pm15\%$ on both outputs, in RX and TX mode}{\dpref{7}, \dpref{8, I3/I8}}
+	\req{LO-04}{Output load}{$\leq 80$\,fF diff.\ per mixer + 30\,fF routing}{\dpref{7}}
+	\req{LO-05}{Distribution}{one buffer, two AC-coupled differential outputs (I3 to DMIX, I8 to UMIX)}{\dpref{7}}
+	\req{LO-06}{2nd harmonic}{$\leq -20$\,dBc at buffer output}{\dpref{7}}
+	\req{LO-07}{Frequency shift RX$\leftrightarrow$TX}{$\leq 1$\,MHz}{\dpref{7}}
+	\req{LO-08}{Tuning voltage (S5)}{\texttt{vtune} static 0--1.1\,V, set to 6.000\,GHz $\pm1\%$ (no PLL in v0.1)}{\dpref{8, S5}}
+	\req{LO-09}{Supply and current}{1.1\,V, 22\,mA: VCO 10\,mW + buffer 14\,mW}{\dpref{9}}
+	\req{LO-10}{Bias}{internal bias circuit, real \texttt{tsmcN40} devices only}{\specref{4}}
+\end{requirements}
+
+% -----------------------------------------------------------------------------
+\section{Overview}
+
+\subsection{Architecture}
+\placeholder{VCO topology, tank, buffer, distribution to both mixers}
+
+\subsection{Schematic}
+\figplaceholder{LO schematic (VCO and buffer)}{fig:lo-schematic}
+
+\subsection{Operating point and bias}
+\placeholder{bias circuit, transistor sizes, currents}
+
+\subsection{Simulation results}
+\placeholder{tuning curve, phase noise (\texttt{pss}/\texttt{pnoise}), output amplitude, harmonics, results vs.\ requirements}
+
+\figplaceholder{LO simulation results}{fig:lo-results}
+
+% -----------------------------------------------------------------------------
+\section{Changelog}
+
+\begin{changelog}
+	\change{2026-11-12}{integrator}{Requirements v0.1 from design proposal}{Starting point for meeting~2}{LO}{proposed}
+\end{changelog}

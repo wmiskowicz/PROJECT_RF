@@ -1,0 +1,53 @@
+% =============================================================================
+%  Block:   DRV -- PA driver (pre-amplifier)
+%  Dir:     drv/
+%  Images:  drv/images/  ->  \includegraphics{drv/images/<file>}
+%  Built from RF_PROJECT.tex via \include{drv/drv}
+% =============================================================================
+
+\chapter{DRV -- PA Driver}
+\label{ch:drv}
+
+% -----------------------------------------------------------------------------
+\section{Owner}
+\blockowner{} % <- fill in: Name Surname
+
+% -----------------------------------------------------------------------------
+\section{Requirements}
+Source: design proposal v0.1~\cite{design_proposal} and project
+specification~\cite{project_spec}. Values become binding after approval at
+meeting~2; every change goes through the changelog below.
+
+\begin{requirements}
+	\req{DRV-01}{Gain}{$+18$\,dB}{\dpref{6}}
+	\req{DRV-02}{Signal levels}{input $-17$\,dBm, output $+1$\,dBm average}{\dpref{6}}
+	\req{DRV-03}{Output compression}{OP1dB $\geq +10$\,dBm (1\,dB above PA IP1dB)}{\dpref{6}}
+	\req{DRV-04}{Input from BPF (I10)}{differential RF, AC-coupled; $C_\mathrm{in} \leq 100$\,fF diff.; own bias}{\dpref{8, I10}}
+	\req{DRV-05}{Output to PA (I11)}{differential RF, AC-coupled; $+1$\,dBm (0.36\,Vrms diff., peak $\approx 1.1$\,V); load $C_\mathrm{in,PA} \leq 500$\,fF diff.; matching network agreed jointly with PA}{\dpref{8, I11}}
+	\req{DRV-06}{Supply and current}{1.1\,V (decision~6), 41\,mA (45\,mW)}{\dpref{9}, \dpref{13}}
+	\req{DRV-07}{Bias}{internal bias circuit, real \texttt{tsmcN40} devices only}{\specref{4}}
+\end{requirements}
+
+% -----------------------------------------------------------------------------
+\section{Overview}
+
+\subsection{Architecture}
+\placeholder{topology, inter-stage matching to PA input}
+
+\subsection{Schematic}
+\figplaceholder{DRV schematic}{fig:drv-schematic}
+
+\subsection{Operating point and bias}
+\placeholder{bias circuit, transistor sizes, currents}
+
+\subsection{Simulation results}
+\placeholder{gain, OP1dB, driving the PA input capacitance, results vs.\ requirements}
+
+\figplaceholder{DRV simulation results}{fig:drv-results}
+
+% -----------------------------------------------------------------------------
+\section{Changelog}
+
+\begin{changelog}
+	\change{2026-11-12}{integrator}{Requirements v0.1 from design proposal}{Starting point for meeting~2}{DRV}{proposed}
+\end{changelog}

@@ -1,0 +1,187 @@
+% =============================================================================
+%  RF_PROJECT.tex -- main document of the TRX 6 GHz (TSMC 40 nm) team project
+%
+%  This file only holds the preamble, the shared macros and the list of
+%  block chapters. Every block lives in its own directory:
+%
+%     <block>/<block>.tex     chapter: Owner, Requirements, Overview, Changelog
+%     <block>/images/         figures of that block
+%     <block>/commit.sh       commit helper (to be written)
+%
+%  Build:  latexmk -pdf RF_PROJECT.tex
+% =============================================================================
+
+% aghdpl.cls (used in example.tex) is not installed here. When it is added to
+% the repository, swap the two lines below and restore the aghdpl-only fields
+% (\supervisor, \thesistype, \titlepages, ...) from example.tex.
+% \documentclass[en]{aghdpl}
+\documentclass[11pt,a4paper]{report}
+
+\usepackage[polish,english]{babel}
+\usepackage{polski}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=25mm]{geometry}
+
+% --- < additional packages > ---
+\usepackage{mathtools}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{circuitikz}
+\usepackage{graphicx}
+\usepackage{hyperref}
+
+% --- < bibliography > ---
+\usepackage[
+style=numeric,
+sorting=none,
+language=autobib,
+autolang=other,
+urldate=iso,
+seconds=true,
+backref=false,
+isbn=true,
+url=false,
+maxbibnames=3,
+backend=biber
+]{biblatex}
+
+\usepackage{csquotes}
+\DeclareQuoteAlias{croatian}{polish}
+
+\addbibresource{bibliografia.bib}
+
+% --- < listings > ---
+\usepackage{courier}
+\usepackage{listings}
+\lstloadlanguages{TeX}
+\lstset{
+	literate={ą}{{\k{a}}}1
+	         {ć}{{\'c}}1
+	         {ę}{{\k{e}}}1
+	         {ó}{{\'o}}1
+	         {ń}{{\'n}}1
+	         {ł}{{\l{}}}1
+	         {ś}{{\'s}}1
+	         {ź}{{\'z}}1
+	         {ż}{{\.z}}1
+	         {Ą}{{\k{A}}}1
+	         {Ć}{{\'C}}1
+	         {Ę}{{\k{E}}}1
+	         {Ó}{{\'O}}1
+	         {Ń}{{\'N}}1
+	         {Ł}{{\L{}}}1
+	         {Ś}{{\'S}}1
+	         {Ź}{{\'Z}}1
+	         {Ż}{{\.Z}}1,
+	basicstyle=\footnotesize\ttfamily,
+}
+
+% --- < figures > ---
+% Paths are resolved from the repository root. Always reference a figure with
+% its block directory, e.g. \includegraphics{lna/images/schematic}, so that
+% files with the same name in two blocks never collide.
+\graphicspath{{./}}
+
+% --- < tables > ---
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{booktabs}
+\usepackage{makecell}
+\usepackage[flushleft]{threeparttable}
+
+\newcolumntype{C}[1]{>{\hsize=#1\hsize\centering\arraybackslash}X}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+% =============================================================================
+%  Shared block macros -- use ONLY these in <block>/<block>.tex files so that
+%  every chapter looks the same. Change the layout here, never in a block file.
+% =============================================================================
+
+% Owner of the block. Empty argument prints "not assigned".
+\newcommand{\blockowner}[1]{%
+	\noindent%
+	\if\relax\detokenize{#1}\relax\textit{not assigned}\else#1\fi\par}
+
+% Reference to a section of the design proposal, e.g. \dpref{5} or \dpref{8, I2}.
+\newcommand{\dpref}[1]{DP~\S#1}
+% Reference to the project specification (projekt.md), e.g. \specref{3}.
+\newcommand{\specref}[1]{Spec~\S#1}
+
+% Inline placeholder for text that is still to be written.
+\newcommand{\placeholder}[1]{\textit{[TODO: #1]}}
+
+% Figure placeholder. Replace with a real figure once the image exists:
+%   \begin{figure}[htbp]\centering
+%     \includegraphics[width=0.8\textwidth]{lna/images/schematic}
+%     \caption{...}\label{fig:lna-schematic}
+%   \end{figure}
+\newcommand{\figplaceholder}[2]{%
+	\begin{figure}[htbp]
+		\centering
+		\fbox{\parbox[c][4cm][c]{0.8\textwidth}{\centering\textit{Placeholder: #1}}}
+		\caption{#1}
+		\label{#2}
+	\end{figure}}
+
+% Requirements table.
+%   \req[status]{ID}{Parameter}{Requirement}{Reference}
+%   status: open (default) | met | not met | waived
+\newenvironment{requirements}{%
+	\par\medskip\noindent\small
+	\tabularx{\textwidth}{@{}l P{0.27\textwidth} L l l@{}}
+	\toprule
+	\textbf{ID} & \textbf{Parameter} & \textbf{Requirement} & \textbf{Ref.} & \textbf{Status} \\
+	\midrule}{%
+	\bottomrule
+	\endtabularx\par\normalsize}
+\newcommand{\req}[5][open]{#2 & #3 & #4 & #5 & #1 \\}
+
+% Changelog (register of decisions and changes).
+%   \change{Date}{Author}{What (was -> is)}{Why}{Affected blocks}{Status}
+%   status: proposed | approved | rejected
+\newenvironment{changelog}{%
+	\par\medskip\noindent\small
+	\tabularx{\textwidth}{@{}l P{0.13\textwidth} L P{0.2\textwidth} P{0.12\textwidth} l@{}}
+	\toprule
+	\textbf{Date} & \textbf{Author} & \textbf{What (was $\to$ is)} & \textbf{Why} & \textbf{Affects} & \textbf{Status} \\
+	\midrule}{%
+	\bottomrule
+	\endtabularx\par\normalsize}
+\newcommand{\change}[6]{#1 & #2 & #3 & #4 & #5 & #6 \\}
+
+%---------------------------------------------------------------------------
+
+\title{Simplified Wi-Fi 6\,GHz Transceiver (TRX) in TSMC 40\,nm\\[2mm]
+	\large Team project documentation}
+\author{RF Project Team\\[1mm]
+	\small Mikroelektronika w Technice i Medycynie\\
+	\small Katedra Metrologii i Elektroniki, AGH}
+\date{\today}
+
+\setcounter{secnumdepth}{3}
+\brokenpenalty=10000\relax
+
+\begin{document}
+
+\maketitle
+
+\setcounter{tocdepth}{1}
+\tableofcontents
+\clearpage
+
+% --- < block chapters: system first, then RX, LO, TX chain order > ---
+\include{integrator/integrator}
+\include{lna/lna}
+\include{dmix/dmix}
+\include{vga/vga}
+\include{lo/lo}
+\include{umix/umix}
+\include{drv/drv}
+\include{pa/pa}
+
+\printbibliography
+
+\end{document}

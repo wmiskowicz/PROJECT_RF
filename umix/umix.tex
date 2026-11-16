@@ -1,0 +1,55 @@
+% =============================================================================
+%  Block:   UMIX + BPF -- up-conversion mixer and RF band-pass filter
+%  Dir:     umix/
+%  Images:  umix/images/  ->  \includegraphics{umix/images/<file>}
+%  Built from RF_PROJECT.tex via \include{umix/umix}
+% =============================================================================
+
+\chapter{UMIX + BPF -- Up-Conversion Mixer and Band-Pass Filter}
+\label{ch:umix}
+
+% -----------------------------------------------------------------------------
+\section{Owner}
+\blockowner{} % <- fill in: Name Surname
+
+% -----------------------------------------------------------------------------
+\section{Requirements}
+Source: design proposal v0.1~\cite{design_proposal} and project
+specification~\cite{project_spec}. Values become binding after approval at
+meeting~2; every change goes through the changelog below.
+
+\begin{requirements}
+	\req{UMIX-01}{BB input from DAC (I7)}{differential, DC; 30\,mVrms diff.\ (peak $\approx 95$\,mV); CM 0.55\,V $\pm50$\,mV; source $\leq 200$\,$\Omega$ diff.; $R_\mathrm{in} \geq 10$\,k$\Omega$, $C_\mathrm{in} \leq 200$\,fF diff.}{\dpref{8, I7}}
+	\req{UMIX-02}{LO input (I8)}{differential, AC-coupled, 0.6\,V peak diff.; $C_\mathrm{in} \leq 80$\,fF diff.; own bias}{\dpref{8, I8}}
+	\req{UMIX-03}{Conversion gain}{$+5.5$\,dB (useful sideband)}{\dpref{6}}
+	\req{UMIX-04}{Output power and compression}{$-15$\,dBm average; OP1dB $\geq -7$\,dBm}{\dpref{6}}
+	\req{UMIX-05}{RF output to BPF (I9)}{differential RF via transformer (no shared DC); nominal 100\,$\Omega$ diff.; image sideband not separated}{\dpref{8, I9}}
+	\req{BPF-01}{BPF insertion loss}{$\leq 2$\,dB}{\dpref{6}, \dpref{8, I10}}
+	\req{BPF-02}{BPF output to DRV (I10)}{differential RF, AC; $-17$\,dBm (45\,mVrms diff.); load $C_\mathrm{in,DRV} \leq 100$\,fF diff.}{\dpref{8, I10}}
+	\req{UMIX-06}{Supply and current}{1.1\,V, 9\,mA (10\,mW)}{\dpref{9}}
+	\req{UMIX-07}{Bias}{internal bias circuit, real \texttt{tsmcN40} devices only}{\specref{4}}
+\end{requirements}
+
+% -----------------------------------------------------------------------------
+\section{Overview}
+
+\subsection{Architecture}
+\placeholder{mixer topology, LO drive, BPF topology and centre frequency}
+
+\subsection{Schematic}
+\figplaceholder{UMIX and BPF schematic}{fig:umix-schematic}
+
+\subsection{Operating point and bias}
+\placeholder{bias circuit, transistor sizes, currents}
+
+\subsection{Simulation results}
+\placeholder{conversion gain, OP1dB, output spectrum (LO leakage, image), BPF response, results vs.\ requirements}
+
+\figplaceholder{UMIX and BPF simulation results}{fig:umix-results}
+
+% -----------------------------------------------------------------------------
+\section{Changelog}
+
+\begin{changelog}
+	\change{2026-11-12}{integrator}{Requirements v0.1 from design proposal}{Starting point for meeting~2}{UMIX}{proposed}
+\end{changelog}

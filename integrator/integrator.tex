@@ -1,0 +1,61 @@
+% =============================================================================
+%  Block:   INTEGRATOR -- system integration, budget, top-level testbench
+%  Dir:     integrator/
+%  Images:  integrator/images/  ->  \includegraphics{integrator/images/<file>}
+%  Built from RF_PROJECT.tex via \include{integrator/integrator}
+% =============================================================================
+
+\chapter{System Integration}
+\label{ch:integrator}
+
+% -----------------------------------------------------------------------------
+\section{Owner}
+\blockowner{} % <- fill in: Name Surname
+
+% -----------------------------------------------------------------------------
+\section{Requirements}
+Source: design proposal v0.1~\cite{design_proposal} and project
+specification~\cite{project_spec}. Values become binding after approval at
+meeting~2; every change goes through the changelog below.
+
+\begin{requirements}
+	\req{SYS-01}{RX noise figure (HG mode)}{$< 10$\,dB (SSB); estimate 5.3\,dB}{\dpref{5}}
+	\req{SYS-02}{RX input signal range}{$-82$\,dBm (sensitivity) to $-30$\,dBm}{\specref{3}}
+	\req{SYS-03}{RX gain range}{17\dots69\,dB (52\,dB): LNA 20/0\,dB + VGA 10\dots42\,dB}{\dpref{4}}
+	\req{SYS-04}{RX IIP3 (LG mode, $-30$\,dBm input)}{$\geq -12$\,dBm ($P_\mathrm{1dB,in} \geq -22$\,dBm); estimate $-9$\,dBm}{\dpref{5}}
+	\req{SYS-05}{RX SNR in LG mode}{$\geq 20$\,dB at $-60$\,dBm input}{\dpref{5}}
+	\req{SYS-06}{TX output power}{$+16$\,dBm into 50\,$\Omega$, $P_\mathrm{1dB} \geq +24$\,dBm (8\,dB back-off)}{\dpref{6}}
+	\req{SYS-07}{LO phase noise}{$\leq -110$\,dBc/Hz at 1\,MHz offset}{\dpref{7}}
+	\req{SYS-08}{Power consumption, RX mode}{$\leq 60$\,mW (budget 56\,mW)}{\dpref{9}}
+	\req{SYS-09}{Power consumption, TX mode}{$\leq 450$\,mW (budget 430\,mW)}{\dpref{9}}
+	\req{SYS-10}{Supplies (S1)}{1.1\,V $\pm5\%$ (all but PA), 2\,V $\pm5\%$ (PA); ideal sources in testbench}{\dpref{8, S1}}
+	\req{SYS-11}{Top-level testbench \texttt{trx\_top}}{every block switchable \texttt{stub}/\texttt{design} via config view; RX and TX modes; pad, ADC and DAC loads from interface table}{\dpref{10}}
+	\req{SYS-12}{Analyses of the full chain}{\texttt{sp}, \texttt{hb} 1-tone and 2-tone, \texttt{pss}/\texttt{pnoise}, \texttt{pac}/\texttt{pxf}, \texttt{ac}, \texttt{tran}}{\dpref{10}}
+	\req{SYS-13}{Parameter table}{columns: Parameter, Budget, \texttt{stub} result, \texttt{design} result, Status}{\dpref{10}}
+	\req{SYS-14}{Common transformer/balun model}{one shared \texttt{xfmr}/\texttt{mind} model with documented $k$ and $Q$}{\dpref{2}}
+	\req{SYS-15}{Shared modulated test signal}{OFDM-like, 52 sub-carriers, PAPR $\approx 10$\,dB}{\dpref{10}}
+	\req{SYS-16}{Simulation conditions}{TT, 27\,$^\circ$C for budget; SS/FF and 0/85\,$^\circ$C in week~8}{\dpref{2}}
+\end{requirements}
+
+% -----------------------------------------------------------------------------
+\section{Overview}
+
+\subsection{Architecture}
+\placeholder{block diagram of RX and TX chains, gain plan, interface map I1--I12}
+
+\figplaceholder{TRX block diagram with interfaces I1--I12}{fig:integrator-block-diagram}
+
+\subsection{Top-level testbench}
+\placeholder{\texttt{trx\_top} hierarchy, config views, stimulus and loads}
+
+\figplaceholder{Top-level testbench \texttt{trx\_top}}{fig:integrator-testbench}
+
+\subsection{Budget and results}
+\placeholder{parameter / budget / stub / design / status table}
+
+% -----------------------------------------------------------------------------
+\section{Changelog}
+
+\begin{changelog}
+	\change{2026-11-12}{integrator}{Requirements v0.1 (budget and interfaces) from design proposal}{Starting point for meeting~2}{all}{proposed}
+\end{changelog}

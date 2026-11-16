@@ -1,0 +1,58 @@
+% =============================================================================
+%  Block:   DMIX -- down-conversion mixer
+%  Dir:     dmix/
+%  Images:  dmix/images/  ->  \includegraphics{dmix/images/<file>}
+%  Built from RF_PROJECT.tex via \include{dmix/dmix}
+% =============================================================================
+
+\chapter{DMIX -- Down-Conversion Mixer}
+\label{ch:dmix}
+
+% -----------------------------------------------------------------------------
+\section{Owner}
+\blockowner{} % <- fill in: Name Surname
+
+% -----------------------------------------------------------------------------
+\section{Requirements}
+Source: design proposal v0.1~\cite{design_proposal} and project
+specification~\cite{project_spec}. Values become binding after approval at
+meeting~2; every change goes through the changelog below.
+
+\begin{requirements}
+	\req{DMIX-01}{Conversion gain}{$+8$\,dB}{\dpref{5}}
+	\req{DMIX-02}{Noise figure}{$\leq 15$\,dB (SSB)}{\dpref{5}}
+	\req{DMIX-03}{IIP3}{$\geq -5$\,dBm (at RF input)}{\dpref{5}}
+	\req{DMIX-04}{RF input from LNA (I2)}{differential via transformer; $C_\mathrm{in} \leq 80$\,fF diff.; 1.8--7.1\,mVrms diff.}{\dpref{8, I2}}
+	\req{DMIX-05}{LO input (I3)}{differential, AC-coupled, 0.6\,V peak diff.; $C_\mathrm{in} \leq 80$\,fF diff.; own bias}{\dpref{8, I3}}
+	\req{DMIX-06}{BB output to VGA (I4)}{differential, AC-coupled, $f_\mathrm{c} \leq 100$\,kHz; 4.5--18\,mVrms diff.; $Z_\mathrm{out} \leq 2$\,k$\Omega$ diff.}{\dpref{8, I4}}
+	\req{DMIX-07}{Supply and current}{1.1\,V, 7\,mA (8\,mW)}{\dpref{9}}
+	\req{DMIX-08}{Bias}{internal bias circuit, real \texttt{tsmcN40} devices only}{\specref{4}}
+\end{requirements}
+
+\noindent\textit{Note:} the LPF is assigned to the VGA designer in the design
+proposal (decision~7, \dpref{13}); by default in the specification it belongs
+to DMIX.
+
+% -----------------------------------------------------------------------------
+\section{Overview}
+
+\subsection{Architecture}
+\placeholder{mixer topology, LO drive, output load and AC coupling}
+
+\subsection{Schematic}
+\figplaceholder{DMIX schematic}{fig:dmix-schematic}
+
+\subsection{Operating point and bias}
+\placeholder{bias circuit, transistor sizes, currents}
+
+\subsection{Simulation results}
+\placeholder{conversion gain, NF (\texttt{pss}/\texttt{pnoise}), IIP3, results vs.\ requirements}
+
+\figplaceholder{DMIX simulation results}{fig:dmix-results}
+
+% -----------------------------------------------------------------------------
+\section{Changelog}
+
+\begin{changelog}
+	\change{2026-11-12}{integrator}{Requirements v0.1 from design proposal}{Starting point for meeting~2}{DMIX}{proposed}
+\end{changelog}

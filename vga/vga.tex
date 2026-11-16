@@ -1,0 +1,60 @@
+% =============================================================================
+%  Block:   VGA + LPF -- variable-gain amplifier and baseband low-pass filter
+%  Dir:     vga/
+%  Images:  vga/images/  ->  \includegraphics{vga/images/<file>}
+%  Built from RF_PROJECT.tex via \include{vga/vga}
+% =============================================================================
+
+\chapter{VGA + LPF -- Variable-Gain Amplifier and Low-Pass Filter}
+\label{ch:vga}
+
+% -----------------------------------------------------------------------------
+\section{Owner}
+\blockowner{} % <- fill in: Name Surname
+
+% -----------------------------------------------------------------------------
+\section{Requirements}
+Source: design proposal v0.1~\cite{design_proposal} and project
+specification~\cite{project_spec}. Values become binding after approval at
+meeting~2; every change goes through the changelog below.
+
+\begin{requirements}
+	\req{VGA-01}{Gain range}{10\dots42\,dB, step 2\,dB, codes 0--16 ($G = 10 + 2k$\,dB)}{\dpref{4}}
+	\req{VGA-02}{Gain control (S3)}{\texttt{vga\textless4:0\textgreater}, 1.1\,V logic, static; codes $>16$ act as 16; settling $\leq 1\,\mu$s to 1\%}{\dpref{8, S3}}
+	\req{VGA-03}{Noise figure}{$\leq 22$\,dB (referred to VGA input, code 16)}{\dpref{5}}
+	\req{VGA-04}{Linearity}{OIP3 $\geq 1.2$\,V peak diff. (code 0)}{\dpref{5}}
+	\req{VGA-05}{Bandwidth}{$-3$\,dB bandwidth $\geq 50$\,MHz at every code}{\dpref{5}}
+	\req{VGA-06}{Input from DMIX (I4)}{differential, AC-coupled; VGA sets CM 0.55\,V; bias $R \geq 80$\,k$\Omega$, $C \leq 20$\,pF per side}{\dpref{8, I4}}
+	\req{VGA-07}{VGA output to LPF (I5)}{differential, DC; 56\,mVrms diff.; CM 0.55\,V $\pm30$\,mV}{\dpref{8, I5}}
+	\req{LPF-01}{Filter type}{Butterworth 3rd order, $f_{-3\mathrm{dB}} = 12$\,MHz}{\dpref{5}}
+	\req{LPF-02}{Filter response}{in-band loss $\leq 1$\,dB; $\approx 1.3$\,dB drop at 10\,MHz; $\geq 13.5$\,dB attenuation at 20\,MHz}{\dpref{5}}
+	\req{LPF-03}{LPF input (I5)}{$Z_\mathrm{in} \geq 5$\,k$\Omega$ diff.}{\dpref{8, I5}}
+	\req{LPF-04}{BB output to ADC (I6)}{differential, DC; 50\,mVrms diff. (FS ADC 0.5\,Vpp); CM 0.55\,V $\pm30$\,mV; load 10\,k$\Omega$ diff. $\parallel$ 1\,pF per side}{\dpref{8, I6}}
+	\req{LPF-05}{Output linearity (I6)}{IM3 $\leq -50$\,dBc for two tones of 35\,mVrms}{\dpref{8, I6}}
+	\req{VGA-08}{Supply and current}{1.1\,V, 11\,mA (12\,mW) for VGA + LPF}{\dpref{9}}
+	\req{VGA-09}{Bias}{internal bias circuit, real \texttt{tsmcN40} devices only}{\specref{4}}
+\end{requirements}
+
+% -----------------------------------------------------------------------------
+\section{Overview}
+
+\subsection{Architecture}
+\placeholder{VGA stages (e.g.\ 3 $\times$ 14\,dB), gain-step mechanism, LPF topology}
+
+\subsection{Schematic}
+\figplaceholder{VGA and LPF schematic}{fig:vga-schematic}
+
+\subsection{Operating point and bias}
+\placeholder{bias circuit, CM feedback, transistor sizes, currents}
+
+\subsection{Simulation results}
+\placeholder{gain vs.\ code (\texttt{ac}), bandwidth, LPF response, OIP3, results vs.\ requirements}
+
+\figplaceholder{VGA and LPF simulation results}{fig:vga-results}
+
+% -----------------------------------------------------------------------------
+\section{Changelog}
+
+\begin{changelog}
+	\change{2026-11-12}{integrator}{Requirements v0.1 from design proposal; LPF moved from DMIX to VGA designer}{Starting point for meeting~2 (decision~7)}{VGA, DMIX}{proposed}
+\end{changelog}
