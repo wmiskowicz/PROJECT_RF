@@ -1,68 +1,116 @@
-# LaTeX setup for RF_PROJECT
+# Building RF_PROJECT.pdf on Linux (no root / no apt)
 
-How to build `RF_PROJECT.pdf` on your own machine.
+This installs TeX Live into your home directory (`~/texlive`). It needs no `sudo` and no `apt`, so it works on shared university servers. Needs about 2-3 GB of disk space.
 
-## 1. Install a TeX distribution
-
-| OS | Distribution |
-| --- | --- |
-| Windows | [MiKTeX](https://miktex.org/download) (tested with MiKTeX 24.1) |
-| Linux / macOS | TeX Live (`texlive-full`) or MacTeX |
-
-You also need **latexmk** and **biber**. Both come with MiKTeX and with a full TeX Live.
-
-## 2. Packages the project needs
-
-Most of them come with a standard install. These two were missing on a fresh MiKTeX:
-
-| Package | Why |
-| --- | --- |
-| `pdfescape` | needed by `hyperref` |
-| `pl` | Polish fonts (`plr10`, ...), needed by `polski` |
-
-### MiKTeX (Windows)
-
-Easiest: let MiKTeX fetch any missing package during the build.
+**Shortcut:** steps 1-4 are automated by a script. From the repository root run:
 
 ```sh
-initexmf --set-config-value=[MPM]AutoInstall=1
+bash scripts/install_latex.sh
 ```
 
-Or install them by hand and refresh MiKTeX's file index:
+Then continue with step 5. The manual steps below do the same thing.
+
+## 1. Check whether LaTeX is already installed
 
 ```sh
-miktex packages install pdfescape
-miktex packages install pl
-initexmf --update-fndb
-initexmf --mkmaps
+which latexmk biber pdflatex
 ```
 
-If a package is reported as *already installed* but the build still says `File 'xxx.sty' not found`, run `initexmf --update-fndb`.
+If all three print a path, skip to step 5 (VS Code) or 6 (terminal).
 
-### TeX Live (Linux / macOS)
-
-`texlive-full` already has everything. With a smaller install:
+## 2. Download the installer
 
 ```sh
-tlmgr install pdfescape pl polski biblatex biber csquotes circuitikz tabularx makecell threeparttable
+mkdir -p ~/texlive-installer && cd ~/texlive-installer
+wget https://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz
+tar xzf install-tl-unx.tar.gz
+cd install-tl-*
 ```
 
-## 3. Build
+(No `wget`? Use `curl -LO https://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz`.)
 
-Run from the repository root:
+## 3. Install TeX Live into your home directory
 
 ```sh
+perl install-tl --no-interaction --scheme=small \
+     --no-doc-install --no-src-install --texdir="$HOME/texlive"
+```
+
+This takes 10-20 minutes. It prints a lot of output; wait for `Welcome to TeX Live!`.
+
+## 4. Add TeX Live to your PATH and install the needed packages
+
+```sh
+echo 'export PATH="$HOME/texlive/bin/x86_64-linux:$PATH"' >> ~/.bashrc
+source ~/.bashrc
+
+tlmgr install collection-latexextra collection-langpolish collection-bibtexextra \
+              collection-pictures collection-fontsrecommended latexmk biber
+```
+
+Check:
+
+```sh
+latexmk -v
+biber --version
+```
+
+Both should print a version number.
+
+## 5. Build in VS Code (Remote - SSH)
+
+Works when VS Code is connected to the Linux machine with the **Remote - SSH** extension. (If VS Code runs locally on Windows, use MiKTeX locally instead; this install isn't used.)
+
+1. Make the PATH visible to VS Code too, since it may not read `~/.bashrc`:
+
+   ```sh
+   echo 'export PATH="$HOME/texlive/bin/x86_64-linux:$PATH"' >> ~/.profile
+   ```
+
+2. Reconnect: press `F1`, run **Remote-SSH: Kill VS Code Server on Host**, then connect again.
+3. Install the **LaTeX Workshop** extension (`James-Yu.latex-workshop`) and choose *Install in SSH: host* when offered.
+4. Open `RF_PROJECT.tex` and click the green ▶ **Build LaTeX project** icon in the top right (or `Ctrl+Alt+B`). The default recipe uses `latexmk`, which also runs `biber`.
+5. Click **View LaTeX PDF** (magnifier icon) to open the PDF in a VS Code tab. Rebuilding refreshes it.
+
+If the build fails with `latexmk: command not found`, the PATH from step 1 wasn't picked up. Open the **LaTeX Workshop** output panel (View > Output) to see the exact error.
+
+## 6. Build from the terminal instead
+
+From the repository root:
+
+```sh
+cd ~/REPO_RF_DOC        # adjust to your repo path
 latexmk -pdf RF_PROJECT.tex
 ```
 
-latexmk runs pdflatex and biber as many times as needed. To remove the build files:
+The result is `RF_PROJECT.pdf`. latexmk runs pdflatex and biber as many times as needed.
+
+To remove build files:
 
 ```sh
 latexmk -C RF_PROJECT.tex
 ```
 
-Build files and `RF_PROJECT.pdf` are listed in `.gitignore`, so don't commit them.
+Build files and the PDF are in `.gitignore`, so don't commit them.
 
-## 4. Known harmless warning
+## Troubleshooting
 
-`Font shape 'OT4/pcr/m/it' undefined`: Courier has no italic in the Polish font encoding, so LaTeX uses upright Courier instead. This can be ignored.
+**`File 'xxx.sty' not found`:** find which package provides it and install it.
+
+```sh
+tlmgr search --global --file "/xxx.sty"
+tlmgr install <package-name>
+```
+
+**`tlmgr: command not found`:** the PATH isn't set. Run `source ~/.bashrc`, or check that `~/texlive/bin/x86_64-linux` exists (on a different CPU the folder name differs, e.g. `aarch64-linux`).
+
+**`biber` fails to run:** the `biber` binary needs a recent glibc. Check with `biber --version`; if it errors, tell your admin or build locally on another machine.
+
+**Warning `Font shape 'OT4/pcr/m/it' undefined`:** harmless. Courier has no italic in the Polish font encoding, so upright Courier is used.
+
+## If you do have root (Debian/Ubuntu)
+
+```sh
+sudo apt update
+sudo apt install texlive-full latexmk biber
+```
