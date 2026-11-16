@@ -76,7 +76,23 @@ Works when VS Code is connected to the Linux machine with the **Remote - SSH** e
 
 If you see no build/view icons at all: the icons appear only while a `.tex` file is open in the editor, and only if LaTeX Workshop is installed **on the SSH host** (Extensions panel, check for the *SSH: ...* section). A LaTeX icon in the left activity bar also means it is working.
 
-If the build fails with `latexmk: command not found`, the PATH from step 1 wasn't picked up. Open the **LaTeX Workshop** output panel (View > Output) to see the exact error.
+If the build fails with `spawn latexmk ENOENT` or `latexmk: command not found`, the VS Code server doesn't see your PATH. The script fixes this automatically by writing the exact `latexmk` location into `~/.vscode-server/data/Machine/settings.json`. To do it by hand, run `which latexmk`, then open that file (F1 > *Preferences: Open Remote Settings (JSON)*) and add, with your path:
+
+```json
+"latex-workshop.latex.tools": [
+    {
+        "name": "latexmk",
+        "command": "/home/USER/texlive/bin/x86_64-linux/latexmk",
+        "args": ["-synctex=1", "-interaction=nonstopmode", "-file-line-error",
+                 "-pdf", "-outdir=%OUTDIR%", "%DOC%"],
+        "env": { "PATH": "/home/USER/texlive/bin/x86_64-linux:/usr/local/bin:/usr/bin:/bin" }
+    }
+]
+```
+
+The `env` PATH matters: latexmk must also find `biber` and `pdflatex`. Press the build button again; no reconnect is needed.
+
+Also check the PATH from step 1 is set. Open the **LaTeX Workshop** output panel (View > Output) to see the exact error.
 
 ## 6. Build from the terminal instead
 
