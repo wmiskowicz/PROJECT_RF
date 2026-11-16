@@ -80,6 +80,44 @@ fi
 
 have latexmk && have biber || { say "ERROR: latexmk or biber still missing."; exit 1; }
 
+# ---------------------------------------------------------------- 3b. biber works?
+# biber is a self-extracting Perl program. It breaks when PERL5LIB & co. point to
+# another Perl (common on EDA servers) or when /tmp/par-* holds a stale cache.
+if biber --version >/dev/null 2>&1; then
+    say "biber runs correctly."
+else
+    say "biber is installed but crashes. Trying to repair..."
+    # (a) stale PAR cache
+    find /tmp -maxdepth 1 -name 'par-*' -user "$(id -un)" -exec rm -rf {} + 2>/dev/null
+    if biber --version >/dev/null 2>&1; then
+        say "Fixed by clearing the /tmp/par-* cache."; CHANGED=1
+    elif env -u PERL5LIB -u PERLLIB -u PERL5OPT biber --version >/dev/null 2>&1; then
+        # (b) foreign Perl environment: wrap biber so it runs with a clean Perl env
+        BIBER_PATH=$(command -v biber)
+        if [ -e "$BIBER_PATH.real" ]; then
+            say "ERROR: $BIBER_PATH.real exists but biber still fails."; exit 1
+        fi
+        mv "$BIBER_PATH" "$BIBER_PATH.real"
+        cat > "$BIBER_PATH" <<'WRAP'
+#!/usr/bin/env bash
+# Wrapper created by install_latex.sh: run biber without foreign Perl settings.
+exec env -u PERL5LIB -u PERLLIB -u PERL5OPT "$(dirname "$(readlink -f "$0")")/biber.real" "$@"
+WRAP
+        chmod +x "$BIBER_PATH"
+        if biber --version >/dev/null 2>&1; then
+            say "Fixed: biber now runs with PERL5LIB/PERLLIB/PERL5OPT unset (wrapper: $BIBER_PATH)."
+            CHANGED=1
+        else
+            say "ERROR: biber wrapper did not help."; exit 1
+        fi
+    else
+        say "ERROR: biber still crashes. Diagnostics:"
+        say "  PERL5LIB='${PERL5LIB:-}' PERLLIB='${PERLLIB:-}' PERL5OPT='${PERL5OPT:-}'"
+        biber --version 2>&1 | head -n 5
+        exit 1
+    fi
+fi
+
 # ---------------------------------------------------------------- 4. VS Code
 if have code; then
     if code --list-extensions 2>/dev/null | grep -qi "^$EXT$"; then
@@ -145,7 +183,7 @@ fi
 # ---------------------------------------------------------------- Summary
 echo
 latexmk -v | sed -n 2p
-biber --version
+biber --version | head -n 1
 echo
 
 if [ "$PENDING" -eq 1 ]; then

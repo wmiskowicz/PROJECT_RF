@@ -124,7 +124,26 @@ tlmgr install <package-name>
 
 **`tlmgr: command not found`:** the PATH isn't set. Run `source ~/.bashrc`, or check that `~/texlive/bin/x86_64-linux` exists (on a different CPU the folder name differs, e.g. `aarch64-linux`).
 
-**`biber` fails to run:** the `biber` binary needs a recent glibc. Check with `biber --version`; if it errors, tell your admin or build locally on another machine.
+**`biber --version` prints Perl errors** (e.g. `POSIX::WNOHANG not allowed`, `IPC/Cmd.pm`): biber is a self-extracting Perl program and breaks when another Perl is picked up. Two causes, try in order (the script does both automatically):
+
+```sh
+# 1. stale extraction cache
+rm -rf /tmp/par-*
+
+# 2. foreign Perl settings, e.g. from EDA tools (check: echo $PERL5LIB)
+env -u PERL5LIB -u PERLLIB -u PERL5OPT biber --version
+```
+
+If step 2 works, make it permanent by wrapping biber:
+
+```sh
+cd ~/texlive/bin/x86_64-linux
+mv biber biber.real
+printf '#!/usr/bin/env bash\nexec env -u PERL5LIB -u PERLLIB -u PERL5OPT "$(dirname "$(readlink -f "$0")")/biber.real" "$@"\n' > biber
+chmod +x biber
+```
+
+If it still fails, `biber` may need a newer glibc than the machine has; then build locally on another machine.
 
 **Warning `Font shape 'OT4/pcr/m/it' undefined`:** harmless. Courier has no italic in the Polish font encoding, so upright Courier is used.
 
