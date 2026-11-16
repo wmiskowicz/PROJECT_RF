@@ -124,26 +124,28 @@ tlmgr install <package-name>
 
 **`tlmgr: command not found`:** the PATH isn't set. Run `source ~/.bashrc`, or check that `~/texlive/bin/x86_64-linux` exists (on a different CPU the folder name differs, e.g. `aarch64-linux`).
 
-**`biber --version` prints Perl errors** (e.g. `POSIX::WNOHANG not allowed`, `IPC/Cmd.pm`): biber is a self-extracting Perl program and breaks when another Perl is picked up. Two causes, try in order (the script does both automatically):
+**`biber --version` prints Perl errors** (e.g. `POSIX::_exit` not predeclared, `POSIX::WNOHANG not allowed`, `IPC/Cmd.pm`): biber unpacks its modules into `/tmp/par-*` at start. If `/tmp` is `noexec`, full or quota-limited (or another Perl leaks in via `PERL5LIB`), this fails. The script fixes it automatically. By hand:
 
 ```sh
-# 1. stale extraction cache
-rm -rf /tmp/par-*
-
-# 2. foreign Perl settings, e.g. from EDA tools (check: echo $PERL5LIB)
-env -u PERL5LIB -u PERLLIB -u PERL5OPT biber --version
+mkdir -p ~/.cache/par-biber
+PAR_GLOBAL_TEMP=~/.cache/par-biber env -u PERL5LIB -u PERLLIB -u PERL5OPT biber --version
 ```
 
-If step 2 works, make it permanent by wrapping biber:
+If that prints a version, make it permanent by wrapping biber:
 
 ```sh
 cd ~/texlive/bin/x86_64-linux
 mv biber biber.real
-printf '#!/usr/bin/env bash\nexec env -u PERL5LIB -u PERLLIB -u PERL5OPT "$(dirname "$(readlink -f "$0")")/biber.real" "$@"\n' > biber
+cat > biber <<'WRAP'
+#!/usr/bin/env bash
+export PAR_GLOBAL_TEMP="$HOME/.cache/par-biber"
+mkdir -p "$PAR_GLOBAL_TEMP"
+exec env -u PERL5LIB -u PERLLIB -u PERL5OPT "$(dirname "$(readlink -f "$0")")/biber.real" "$@"
+WRAP
 chmod +x biber
 ```
 
-If it still fails, `biber` may need a newer glibc than the machine has; then build locally on another machine.
+If it still fails, run `df -h /tmp ~; mount | grep /tmp; ldd --version` and look for `noexec`, no free space, or an old glibc.
 
 **Warning `Font shape 'OT4/pcr/m/it' undefined`:** harmless. Courier has no italic in the Polish font encoding, so upright Courier is used.
 

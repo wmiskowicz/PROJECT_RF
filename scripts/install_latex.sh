@@ -81,39 +81,45 @@ fi
 have latexmk && have biber || { say "ERROR: latexmk or biber still missing."; exit 1; }
 
 # ---------------------------------------------------------------- 3b. biber works?
-# biber is a self-extracting Perl program. It breaks when PERL5LIB & co. point to
-# another Perl (common on EDA servers) or when /tmp/par-* holds a stale cache.
+# biber is a PAR-packed Perl program: at start it unpacks its modules and compiled
+# parts (.so) into /tmp/par-*. If /tmp is noexec / full / quota-limited, or another
+# Perl leaks in via PERL5LIB, it dies with "POSIX::_exit"/"POSIX::WNOHANG" errors.
+# Repair: unpack into $HOME (PAR_GLOBAL_TEMP) and ignore foreign Perl variables.
+PAR_DIR="$HOME/.cache/par-biber"
+MARK="Wrapper created by install_latex.sh"
+BIBER_PATH=$(command -v biber)
+if grep -q "$MARK" "$BIBER_PATH" 2>/dev/null; then BIBER_REAL="$BIBER_PATH.real"; else BIBER_REAL="$BIBER_PATH"; fi
+
 if biber --version >/dev/null 2>&1; then
     say "biber runs correctly."
 else
     say "biber is installed but crashes. Trying to repair..."
-    # (a) stale PAR cache
-    find /tmp -maxdepth 1 -name 'par-*' -user "$(id -un)" -exec rm -rf {} + 2>/dev/null
-    if biber --version >/dev/null 2>&1; then
-        say "Fixed by clearing the /tmp/par-* cache."; CHANGED=1
-    elif env -u PERL5LIB -u PERLLIB -u PERL5OPT biber --version >/dev/null 2>&1; then
-        # (b) foreign Perl environment: wrap biber so it runs with a clean Perl env
-        BIBER_PATH=$(command -v biber)
-        if [ -e "$BIBER_PATH.real" ]; then
-            say "ERROR: $BIBER_PATH.real exists but biber still fails."; exit 1
-        fi
-        mv "$BIBER_PATH" "$BIBER_PATH.real"
-        cat > "$BIBER_PATH" <<'WRAP'
+    mkdir -p "$PAR_DIR"; rm -rf "${PAR_DIR:?}"/* 2>/dev/null
+    if env -u PERL5LIB -u PERLLIB -u PERL5OPT PAR_GLOBAL_TEMP="$PAR_DIR" "$BIBER_REAL" --version >/dev/null 2>&1; then
+        [ "$BIBER_REAL" = "$BIBER_PATH" ] && mv "$BIBER_PATH" "$BIBER_PATH.real" && BIBER_REAL="$BIBER_PATH.real"
+        cat > "$BIBER_PATH" <<WRAP
 #!/usr/bin/env bash
-# Wrapper created by install_latex.sh: run biber without foreign Perl settings.
-exec env -u PERL5LIB -u PERLLIB -u PERL5OPT "$(dirname "$(readlink -f "$0")")/biber.real" "$@"
+# $MARK: run biber unpacking into \$HOME and without foreign Perl settings.
+export PAR_GLOBAL_TEMP="$PAR_DIR"
+mkdir -p "\$PAR_GLOBAL_TEMP"
+exec env -u PERL5LIB -u PERLLIB -u PERL5OPT "$BIBER_REAL" "\$@"
 WRAP
         chmod +x "$BIBER_PATH"
         if biber --version >/dev/null 2>&1; then
-            say "Fixed: biber now runs with PERL5LIB/PERLLIB/PERL5OPT unset (wrapper: $BIBER_PATH)."
+            say "Fixed: biber now unpacks into $PAR_DIR (wrapper: $BIBER_PATH)."
             CHANGED=1
         else
-            say "ERROR: biber wrapper did not help."; exit 1
+            say "ERROR: wrapper written but biber still fails."; exit 1
         fi
     else
-        say "ERROR: biber still crashes. Diagnostics:"
+        say "ERROR: biber still crashes. Diagnostics (send these):"
         say "  PERL5LIB='${PERL5LIB:-}' PERLLIB='${PERLLIB:-}' PERL5OPT='${PERL5OPT:-}'"
-        biber --version 2>&1 | head -n 5
+        say "  /tmp mount: $(mount 2>/dev/null | grep -E ' /tmp ' || echo 'not a separate mount')"
+        say "  /tmp space: $(df -h /tmp 2>/dev/null | tail -n 1)"
+        say "  home space: $(df -h "$HOME" 2>/dev/null | tail -n 1)"
+        say "  glibc: $(ldd --version 2>&1 | head -n 1)"
+        say "  biber: $(file -L "$BIBER_REAL" 2>/dev/null | cut -c1-120)"
+        env PAR_GLOBAL_TEMP="$PAR_DIR" "$BIBER_REAL" --version 2>&1 | head -n 5
         exit 1
     fi
 fi
