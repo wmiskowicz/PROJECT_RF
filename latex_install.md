@@ -8,7 +8,9 @@ This installs TeX Live into your home directory (`~/texlive`). It needs no `sudo
 bash scripts/install_latex.sh
 ```
 
-Then continue with step 5. The manual steps below do the same thing.
+The script is safe to re-run: it checks what is already in place (TeX Live, PATH, packages, VS Code extension) and fixes only what is missing. It prints `Setup is complete` only when everything is done. Run it from the **VS Code terminal** so it can also install and check the LaTeX Workshop extension.
+
+The manual steps below do the same thing.
 
 ## 1. Check whether LaTeX is already installed
 
@@ -72,14 +74,16 @@ Works when VS Code is connected to the Linux machine with the **Remote - SSH** e
 4. Open `RF_PROJECT.tex` and click the green ▶ **Build LaTeX project** icon in the top right (or `Ctrl+Alt+B`). The default recipe uses `latexmk`, which also runs `biber`.
 5. Click **View LaTeX PDF** (magnifier icon) to open the PDF in a VS Code tab. Rebuilding refreshes it.
 
+If you see no build/view icons at all: the icons appear only while a `.tex` file is open in the editor, and only if LaTeX Workshop is installed **on the SSH host** (Extensions panel, check for the *SSH: ...* section). A LaTeX icon in the left activity bar also means it is working.
+
 If the build fails with `latexmk: command not found`, the PATH from step 1 wasn't picked up. Open the **LaTeX Workshop** output panel (View > Output) to see the exact error.
 
 ## 6. Build from the terminal instead
 
-From the repository root:
+`RF_PROJECT.tex` is in the repository root, the parent folder of `scripts/`. From inside the cloned repository (any subfolder) run:
 
 ```sh
-cd ~/REPO_RF_DOC        # adjust to your repo path
+cd "$(git rev-parse --show-toplevel)"
 latexmk -pdf RF_PROJECT.tex
 ```
 
