@@ -8,24 +8,30 @@
 \chapter{DRV -- PA Driver}
 \label{ch:drv}
 
-% -----------------------------------------------------------------------------
-\section{Owner}
 \blockowner{Jan Strączek}
 
 % -----------------------------------------------------------------------------
 \section{Requirements}
-Source: design proposal v0.1~\cite{design_proposal} and project
-specification~\cite{project_spec}. Values become binding after approval at
-meeting~2; every change goes through the changelog below.
+Source: project specification and requirements changeover v0.2.
 
 \begin{requirements}
-	\req{DRV-01}{Gain}{$+18$\,dB}{\dpref{6}}
-	\req{DRV-02}{Signal levels}{input $-17$\,dBm, output $+1$\,dBm average}{\dpref{6}}
-	\req{DRV-03}{Output compression}{OP1dB $\geq +10$\,dBm (1\,dB above PA IP1dB)}{\dpref{6}}
-	\req{DRV-04}{Input from BPF (I10)}{differential RF, AC-coupled; $C_\mathrm{in} \leq 100$\,fF diff.; own bias}{\dpref{8, I10}}
-	\req{DRV-05}{Output to PA (I11)}{differential RF, AC-coupled; $+1$\,dBm (0.36\,Vrms diff., peak $\approx 1.1$\,V); load $C_\mathrm{in,PA} \leq 500$\,fF diff.; matching network agreed jointly with PA}{\dpref{8, I11}}
-	\req{DRV-06}{Supply and current}{1.1\,V (decision~6), 41\,mA (45\,mW)}{\dpref{9}, \dpref{13}}
-	\req{DRV-07}{Bias}{internal bias circuit, real \texttt{tsmcN40} devices only}{\specref{4}}
+	\req{DRV-01}{VDD}{1.1\,V}{SYS-04}
+	\req{DRV-02}{Input interface}{differential, I8}{I8}
+	\req{DRV-03}{Input coupling}{AC: transformer (UMIX) or C + R (DRV), see I8}{I8}
+	\req{DRV-04}{Input DC voltage}{TBD}{I8}
+	\req{DRV-05}{Input signal}{TBD (from UMIX-10)}{I8}
+	\req{DRV-06}{Input impedance}{$R_\mathrm{in} \geq$ TBD $\parallel$ $C_\mathrm{in} \leq$ TBD}{I8}
+	\req{DRV-07}{Output interface}{differential, I9}{I9}
+	\req{DRV-08}{Output coupling}{AC: transformer used as the DRV load (DRV); resonates the PA input capacitance}{I9}
+	\req{DRV-09}{Output DC voltage}{centre tap, set by the PA bias requirement (TBD with PA)}{I9}
+	\req{DRV-10}{Output signal}{TBD}{I9}
+	\req{DRV-11}{Output impedance / load}{PA input (PA-06), TBD}{I9}
+	\req{DRV-12}{Frequency / bandwidth}{6\,GHz $\pm$ 10\,MHz}{SYS-02}
+	\req{DRV-13}{Gain}{TBD}{}
+	\req{DRV-14}{Noise}{N/A}{}
+	\req{DRV-15}{Linearity}{OP1dB TBD (dBm)}{}
+	\req{DRV-16}{Supply current}{TBD}{}
+	\req{DRV-17}{Power consumption}{TBD}{}
 \end{requirements}
 
 % -----------------------------------------------------------------------------
@@ -50,4 +56,5 @@ meeting~2; every change goes through the changelog below.
 
 \begin{changelog}
 	\change{2026-11-12}{integrator}{Requirements v0.1 from design proposal}{Starting point for meeting~2}{DRV}{proposed}
+	\change{2026-11-17}{integrator}{Requirements v0.1 $\to$ v0.2 (standard table)}{Changeover, see requirements\_changeover.md}{DRV}{proposed}
 \end{changelog}
