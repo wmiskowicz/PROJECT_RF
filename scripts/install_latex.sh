@@ -128,14 +128,15 @@ fi
 # ------------------------------------------- 5. VS Code: absolute latexmk path
 # The VS Code server often starts with a minimal PATH that ignores ~/.profile
 # ("spawn latexmk ENOENT"), so point LaTeX Workshop at latexmk explicitly.
-# Written to the per-user remote settings (not the repo), since paths are machine-specific.
-SETTINGS="$HOME/.vscode-server/data/Machine/settings.json"
+# Written (a) to the workspace settings, which VS Code always reads, and
+# (b) to the per-user remote settings. Both are machine-specific and git-ignored/outside the repo.
 LATEXMK_BIN=$(command -v latexmk)
 TEX_BIN_DIR=$(dirname "$LATEXMK_BIN")
 
-if have python3; then
-    mkdir -p "$(dirname "$SETTINGS")"
-    result=$(LATEXMK_BIN="$LATEXMK_BIN" TEX_BIN_DIR="$TEX_BIN_DIR" SETTINGS="$SETTINGS" python3 - <<'PY'
+write_vscode_tool() {   # $1 = settings.json path
+    local file="$1" result
+    mkdir -p "$(dirname "$file")"
+    result=$(LATEXMK_BIN="$LATEXMK_BIN" TEX_BIN_DIR="$TEX_BIN_DIR" SETTINGS="$file" python3 - <<'PY'
 import json, os
 path = os.environ["SETTINGS"]
 latexmk, bindir = os.environ["LATEXMK_BIN"], os.environ["TEX_BIN_DIR"]
@@ -153,21 +154,26 @@ if os.path.exists(path) and os.path.getsize(path) > 0:
             data = json.load(f)
     except ValueError:
         print("unparsable"); raise SystemExit
-tools = [t for t in data.get("latex-workshop.latex.tools", []) if t.get("name") != "latexmk"]
-if tool in data.get("latex-workshop.latex.tools", []):
+old = data.get("latex-workshop.latex.tools", [])
+if tool in old:
     print("ok"); raise SystemExit
-data["latex-workshop.latex.tools"] = tools + [tool]
+data["latex-workshop.latex.tools"] = [t for t in old if t.get("name") != "latexmk"] + [tool]
 with open(path, "w") as f:
     json.dump(data, f, indent=4)
 print("updated")
 PY
 )
     case "$result" in
-        ok)        say "VS Code settings already point to $LATEXMK_BIN." ;;
-        updated)   say "Wrote latexmk path to $SETTINGS"; CHANGED=1 ;;
-        *)         say "WARNING: $SETTINGS has comments/invalid JSON; add the tool manually (see latex_install.md)."
-                   PENDING=1 ;;
+        ok)      say "Already set in $file" ;;
+        updated) say "Wrote latexmk path to $file"; CHANGED=1 ;;
+        *)       say "WARNING: $file has comments/invalid JSON; add the tool manually (see latex_install.md)."
+                 PENDING=1 ;;
     esac
+}
+
+if have python3; then
+    write_vscode_tool "$REPO_ROOT/.vscode/settings.json"
+    write_vscode_tool "$HOME/.vscode-server/data/Machine/settings.json"
 else
     say "WARNING: python3 not found; add the latexmk tool to VS Code settings manually (see latex_install.md)."
     PENDING=1
