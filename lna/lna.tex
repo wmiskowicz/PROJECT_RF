@@ -8,28 +8,30 @@
 \chapter{LNA -- Low-Noise Amplifier}
 \label{ch:lna}
 
-% -----------------------------------------------------------------------------
-\section{Owner}
 \blockowner{Jakub Róg}
 
 % -----------------------------------------------------------------------------
 \section{Requirements}
-Source: design proposal v0.1~\cite{design_proposal} and project
-specification~\cite{project_spec}. Values become binding after approval at
-meeting~2; every change goes through the changelog below.
+Source: project specification and requirements changeover v0.2.
 
 \begin{requirements}
-	\req{LNA-01}{Gain, HG mode}{$+20$\,dB}{\dpref{4}}
-	\req{LNA-02}{Gain, LG mode}{0\,dB; selected by \texttt{lna\_lg} = 1 (1.1\,V logic, static)}{\dpref{4}, \dpref{8, S3}}
-	\req{LNA-03}{Noise figure, HG mode}{$\leq 4.5$\,dB}{\dpref{5}}
-	\req{LNA-04}{Noise figure, LG mode}{$\leq 7$\,dB}{\dpref{5}}
-	\req{LNA-05}{IIP3, LG mode}{$\geq +5$\,dBm}{\dpref{5}}
-	\req{LNA-06}{Input match (I1)}{single-ended 50\,$\Omega$, $|S_{11}| \leq -10$\,dB in 5.9--6.1\,GHz; series capacitor inside LNA; pad + ESD 100\,fF in testbench}{\dpref{8, I1}}
-	\req{LNA-07}{Input signal level (I1)}{$-82$\dots$-30$\,dBm, peak up to $-20$\,dBm}{\dpref{8, I1}}
-	\req{LNA-08}{Output to DMIX (I2)}{differential via transformer (no shared DC); 1.8--7.1\,mVrms diff.; load $C_\mathrm{in} \leq 80$\,fF diff.; common transformer model}{\dpref{8, I2}}
-	\req{LNA-09}{Supply and current}{1.1\,V, 10\,mA (11\,mW)}{\dpref{9}}
-	\req{LNA-10}{Bias}{internal bias circuit, real \texttt{tsmcN40} devices only}{\specref{4}}
-	\req{LNA-11}{Modulated-signal test}{required for LNA; shared test signal, PAPR $\approx 10$\,dB}{\specref{3}}
+	\req{LNA-01}{VDD}{1.1\,V}{SYS-04}
+	\req{LNA-02}{Input interface}{single-ended, I1}{I1}
+	\req{LNA-03}{Input coupling}{AC: series C in the input match (LNA)}{I1}
+	\req{LNA-04}{Input DC voltage}{internal (gate bias through a resistor), TBD, for information only}{I1}
+	\req{LNA-05}{Input signal}{$-82$\dots$-30$\,dBm ($\approx 50\,\mu$Vpp\dots20\,mVpp at the matched pin, SE)}{SYS-07}
+	\req{LNA-06}{Input impedance}{50\,$\Omega$, $|S_{11}| \leq -10$\,dB, 5.9--6.1\,GHz}{I1}
+	\req{LNA-07}{Output interface}{differential, I2}{I2}
+	\req{LNA-08}{Output coupling}{AC: transformer used as the LNA load (LNA)}{I2}
+	\req{LNA-09}{Output DC voltage}{centre tap, set by the DMIX bias requirement (TBD with DMIX)}{I2}
+	\req{LNA-10}{Output signal}{$\approx 0.28$\,mVpp\dots112\,mVpp diff.\ (15\,dB above the input)}{I2}
+	\req{LNA-11}{Output impedance / load}{DMIX input (DMIX-06), TBD; earlier estimate $C \leq 80$\,fF diff.}{I2}
+	\req{LNA-12}{Frequency / bandwidth}{6\,GHz $\pm$ 10\,MHz}{SYS-02}
+	\req{LNA-13}{Gain}{\textbf{15\,dB} voltage gain (single gain mode)}{SYS-06}
+	\req{LNA-14}{Noise}{NF $\leq$ 2\,dB}{SYS-06}
+	\req{LNA-15}{Linearity}{IIP3 TBD (integrator budget); the chain must reach $P_\mathrm{1dB,in} \geq -22$\,dBm ($-30$\,dBm + 8\,dB back-off), so the LNA needs at least this headroom}{SYS-07}
+	\req{LNA-16}{Supply current}{TBD}{}
+	\req{LNA-17}{Power consumption}{TBD}{}
 \end{requirements}
 
 % -----------------------------------------------------------------------------
@@ -54,4 +56,5 @@ meeting~2; every change goes through the changelog below.
 
 \begin{changelog}
 	\change{2026-11-12}{integrator}{Requirements v0.1 from design proposal}{Starting point for meeting~2}{LNA}{proposed}
+	\change{2026-11-17}{integrator}{Requirements v0.1 $\to$ v0.2 (standard table)}{Changeover, see requirements\_changeover.md}{LNA}{proposed}
 \end{changelog}

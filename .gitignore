@@ -17,3 +17,6 @@
 RF_PROJECT.pdf
 # Local, machine-specific bibliography backend override (see scripts/install_latex.sh)
 bibbackend.tex
+# Machine-specific VS Code settings written by scripts/install_latex.sh
+.vscode/settings.json
+Praca/

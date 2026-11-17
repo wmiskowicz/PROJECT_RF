@@ -8,42 +8,73 @@
 \chapter{System Integration}
 \label{ch:integrator}
 
-% -----------------------------------------------------------------------------
-\section{Owner}
 \blockowner{Wojciech Miśkowicz}
 
 % -----------------------------------------------------------------------------
+\section{Schematic}
+Block diagram of the RX and TX chains with the shared LO. Every block-to-block
+connection is labelled with its interface ID I1--I10 (table in
+section~\ref{sec:integrator-interfaces}).
+
+\figplaceholder{TRX block diagram with interfaces I1--I10}{fig:integrator-block-diagram}
+
+% -----------------------------------------------------------------------------
 \section{Requirements}
-Source: design proposal v0.1~\cite{design_proposal} and project
-specification~\cite{project_spec}. Values become binding after approval at
-meeting~2; every change goes through the changelog below.
+Source: project specification and requirements changeover v0.2.
 
 \begin{requirements}
-	\req{SYS-01}{RX noise figure (HG mode)}{$< 10$\,dB (SSB); estimate 5.3\,dB}{\dpref{5}}
-	\req{SYS-02}{RX input signal range}{$-82$\,dBm (sensitivity) to $-30$\,dBm}{\specref{3}}
-	\req{SYS-03}{RX gain range}{17\dots69\,dB (52\,dB): LNA 20/0\,dB + VGA 10\dots42\,dB}{\dpref{4}}
-	\req{SYS-04}{RX IIP3 (LG mode, $-30$\,dBm input)}{$\geq -12$\,dBm ($P_\mathrm{1dB,in} \geq -22$\,dBm); estimate $-9$\,dBm}{\dpref{5}}
-	\req{SYS-05}{RX SNR in LG mode}{$\geq 20$\,dB at $-60$\,dBm input}{\dpref{5}}
-	\req{SYS-06}{TX output power}{$+16$\,dBm into 50\,$\Omega$, $P_\mathrm{1dB} \geq +24$\,dBm (8\,dB back-off)}{\dpref{6}}
-	\req{SYS-07}{LO phase noise}{$\leq -110$\,dBc/Hz at 1\,MHz offset}{\dpref{7}}
-	\req{SYS-08}{Power consumption, RX mode}{$\leq 60$\,mW (budget 56\,mW)}{\dpref{9}}
-	\req{SYS-09}{Power consumption, TX mode}{$\leq 450$\,mW (budget 430\,mW)}{\dpref{9}}
-	\req{SYS-10}{Supplies (S1)}{1.1\,V $\pm5\%$ (all but PA), 2\,V $\pm5\%$ (PA); ideal sources in testbench}{\dpref{8, S1}}
-	\req{SYS-11}{Top-level testbench \texttt{trx\_top}}{every block switchable \texttt{stub}/\texttt{design} via config view; RX and TX modes; pad, ADC and DAC loads from interface table}{\dpref{10}}
-	\req{SYS-12}{Analyses of the full chain}{\texttt{sp}, \texttt{hb} 1-tone and 2-tone, \texttt{pss}/\texttt{pnoise}, \texttt{pac}/\texttt{pxf}, \texttt{ac}, \texttt{tran}}{\dpref{10}}
-	\req{SYS-13}{Parameter table}{columns: Parameter, Budget, \texttt{stub} result, \texttt{design} result, Status}{\dpref{10}}
-	\req{SYS-14}{Common transformer/balun model}{one shared \texttt{xfmr}/\texttt{mind} model with documented $k$ and $Q$}{\dpref{2}}
-	\req{SYS-15}{Shared modulated test signal}{OFDM-like, 52 sub-carriers, PAPR $\approx 10$\,dB}{\dpref{10}}
-	\req{SYS-16}{Simulation conditions}{TT, 27\,$^\circ$C for budget; SS/FF and 0/85\,$^\circ$C in week~8}{\dpref{2}}
+	\req{SYS-01}{Technology}{TSMC 40\,nm, \texttt{tsmcN40}, Cadence + SpectreRF}{\specref{2--3}}
+	\req{SYS-02}{Operating frequency}{6\,GHz, 20\,MHz channel}{\specref{2--3}}
+	\req{SYS-03}{Architecture}{direct conversion, one LO shared by RX and TX (TDD)}{\specref{2--3}}
+	\req{SYS-04}{Supply}{VDD = 1.1\,V for all blocks; VDD\_PA = 2\,V}{\specref{2--3}}
+	\req{SYS-05}{RX input / TX output}{50\,$\Omega$}{\specref{2--3}}
+	\req{SYS-06}{RX noise figure}{$< 10$\,dB}{\specref{2--3}}
+	\req{SYS-07}{RX input signal range}{$-82$\,dBm (sensitivity)\dots$-30$\,dBm}{\specref{2--3}}
+	\req{SYS-08}{TX output power}{$+16$\,dBm into 50\,$\Omega$, 8\,dB back-off from $P_\mathrm{1dB}$}{\specref{2--3}}
+	\req{SYS-09}{Test signals}{one tone (gain, noise), two tones (IP3), QPSK/QAM (LNA and PA required)}{\specref{2--3}}
+	\req{SYS-10}{Devices and bias}{real \texttt{tsmcN40} devices, bias inside each block; baluns/transformers may be ideal with a realistic $Q$}{\specref{2--3}}
+	\req{SYS-11}{Coupling rule}{see the coupling rules below and the interface table}{\specref{2--3}}
 \end{requirements}
+
+\subsection{Coupling rules}
+\begin{enumerate}
+	\item If the driving stage already has an inductive load, that load is made a
+	      \textbf{transformer/balun}. It also gives AC coupling, single-ended to
+	      differential conversion and a centre-tap bias. The \textbf{driving} block owns it.
+	\item Otherwise use a \textbf{MIM capacitor plus bias resistor} in the \textbf{receiving} block.
+	\item No coil is added only for coupling.
+	\item Baseband: DMIX$\to$VGA is AC-coupled (removes the DC offset from LO
+	      self-mixing). The baseband edges (VGA$\to$ADC, BB source$\to$UMIX) are
+	      DC-coupled with an agreed common-mode level.
+	\item Impedances: 50\,$\Omega$ ports are given as $Z$ plus $|S_{11}|$/$|S_{22}|$;
+	      on-chip ports as $R \parallel C$. The \textbf{receiving} block owns the number;
+	      the driving block meets its own specification into that load.
+\end{enumerate}
+
+\subsection{Interfaces}\label{sec:integrator-interfaces}
+The agreed numbers at each interface are the contract between blocks. The LO drives
+I3 and I7 together, so the LO output load is the sum of both mixer inputs.
+
+\par\medskip\noindent\small
+\begin{tabularx}{\textwidth}{@{}l l l l L l@{}}
+	\toprule
+	\textbf{ID} & \textbf{From $\to$ To} & \textbf{Freq.} & \textbf{Type} & \textbf{Coupling} & \textbf{Owner} \\
+	\midrule
+	I1 & Antenna (50\,$\Omega$) $\to$ LNA & 6\,GHz & SE & AC: series C in the LNA input match & LNA \\
+	I2 & LNA $\to$ DMIX & 6\,GHz & SE $\to$ diff. & AC: \textbf{transformer used as the LNA load}; centre tap biases the DMIX & LNA \\
+	I3 & LO $\to$ DMIX & 6\,GHz & diff. & AC: C + R at the DMIX LO input & DMIX \\
+	I4 & DMIX $\to$ VGA & BB $\leq 10$\,MHz & diff. & AC: C + R, $f_\mathrm{c} \approx 100$\,kHz & VGA \\
+	I5 & VGA $\to$ ADC load & BB & diff. & \textbf{DC}, common mode TBD (proposed 0.55\,V = VDD/2) & -- \\
+	I6 & BB source $\to$ UMIX & BB & diff. & \textbf{DC}, common mode TBD (proposed 0.55\,V) & -- \\
+	I7 & LO $\to$ UMIX & 6\,GHz & diff. & AC: C + R at the UMIX LO input & UMIX \\
+	I8 & UMIX $\to$ DRV & 6\,GHz & diff. & AC: transformer (UMIX load) \textbf{or} C + R (DRV); the two owners choose and record it & UMIX or DRV \\
+	I9 & DRV $\to$ PA & 6\,GHz & diff. & AC: \textbf{transformer used as the DRV load} (resonates the large PA $C_\mathrm{in}$; centre tap biases the PA) & DRV \\
+	I10 & PA $\to$ antenna (50\,$\Omega$) & 6\,GHz & diff. $\to$ SE & output transformer / matching network & PA \\
+	\bottomrule
+\end{tabularx}\par\normalsize
 
 % -----------------------------------------------------------------------------
 \section{Overview}
-
-\subsection{Architecture}
-\placeholder{block diagram of RX and TX chains, gain plan, interface map I1--I12}
-
-\figplaceholder{TRX block diagram with interfaces I1--I12}{fig:integrator-block-diagram}
 
 \subsection{Top-level testbench}
 \placeholder{\texttt{trx\_top} hierarchy, config views, stimulus and loads}
@@ -58,4 +89,5 @@ meeting~2; every change goes through the changelog below.
 
 \begin{changelog}
 	\change{2026-11-12}{integrator}{Requirements v0.1 (budget and interfaces) from design proposal}{Starting point for meeting~2}{all}{proposed}
+	\change{2026-11-17}{integrator}{Requirements v0.1 $\to$ v0.2 (standard table)}{Changeover, see requirements\_changeover.md}{all}{proposed}
 \end{changelog}
