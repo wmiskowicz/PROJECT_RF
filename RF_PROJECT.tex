@@ -82,10 +82,7 @@ backend=\bibbackend
 }
 
 % --- < figures > ---
-% Paths are resolved from the repository root. Always reference a figure with
-% its block directory, e.g. \includegraphics{lna/images/schematic}, so that
-% files with the same name in two blocks never collide.
-\graphicspath{{./}}
+\graphicspath{{./images}}
 
 % --- < tables > ---
 \usepackage{array}
@@ -106,8 +103,10 @@ backend=\bibbackend
 
 % Owner of the block. Empty argument prints "not assigned".
 \newcommand{\blockowner}[1]{%
-	\noindent%
-	\if\relax\detokenize{#1}\relax\textit{not assigned}\else#1\fi\par}
+	\vspace{-0.5\baselineskip}%
+	\noindent{\small\textit{Owner: %
+	\if\relax\detokenize{#1}\relax not assigned\else#1\fi}}\par
+	\vspace{0.5\baselineskip}}
 
 % Reference to a section of the design proposal, e.g. \dpref{5} or \dpref{8, I2}.
 \newcommand{\dpref}[1]{DP~\S#1}
@@ -158,10 +157,10 @@ backend=\bibbackend
 
 %---------------------------------------------------------------------------
 
-\title{Simplified Wi-Fi 6\,GHz Transceiver (TRX) in TSMC 40\,nm\\[2mm]
-	\large Team project documentation}
-\author{RF Project Team\\[1mm]
-	\small Mikroelektronika w Technice i Medycynie\\
+\title{Wi-Fi 6\,GHz Transceiver in TSMC 40\,nm\\[2mm]
+	\large RFIC project documentation}
+\author{Microelectronics in Technics and Medicine\\[1mm]
+	\small Departament of Metrology and Electronics, AGH\\
 	\small Katedra Metrologii i Elektroniki, AGH}
 \date{\today}
 
@@ -170,7 +169,52 @@ backend=\bibbackend
 
 \begin{document}
 
-\maketitle
+% Title page in the style of the AGH thesis template (aghdpl.cls, \titlepages).
+\begin{titlepage}
+	\begin{center}
+		\vspace*{0mm}
+
+		\includegraphics[scale=0.6]{./images/agh.jpg}
+
+		\vspace*{2mm}
+
+		{\sffamily{\large{\bfseries{\scshape Akademia G\'{o}rniczo-Hutnicza im. Stanis\l{}awa Staszica w Krakowie}}}
+
+		\vspace*{1mm}
+
+		{\small\bfseries \MakeUppercase{Faculty of Electrical Engineering, Automatics,\\[-1mm]Computer Science and Biomedical Engineering}}}
+		\vspace*{8mm}
+
+		{\sffamily\Large\itshape Wi-Fi 6\,GHz Transceiver in TSMC 40\,nm}
+		\vspace*{1mm}
+
+		{\sffamily\Large\itshape RFIC project documentation}
+		\vspace{40mm}
+	\end{center}
+
+	\noindent
+	{\sffamily
+	\begin{tabular}{p{45mm}l}
+		Team leader: & {\itshape {Wojciech Miśkowicz}}\\[-1mm]
+		Team members: & \itshape
+			\begin{tabular}[t]{@{}l@{}}
+				Łukasz Perczyński\\
+				Jakub Róg\\
+				Tymon Ryś\\
+				Zuzanna Schab\\
+				Michał Słupski\\
+				Jan Strączek\\
+				Jakub Szwarga
+			\end{tabular}\\[2mm]
+
+		Degree programme: & {\itshape Microelectronics in Technics and Medicine}\\[-1mm]
+	\end{tabular}
+	}
+
+	\vspace*{9mm}
+
+	\centerline{\small\sffamily Krak\'{o}w, \the\year}
+\end{titlepage}
 
 \setcounter{tocdepth}{1}
 \tableofcontents

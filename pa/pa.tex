@@ -8,17 +8,14 @@
 \chapter{PA -- Power Amplifier}
 \label{ch:pa}
 
-% -----------------------------------------------------------------------------
-\section{Owner}
-\blockowner{} % <- fill in: Name Surname
+\blockowner{Tymon Ryś}
 
 % -----------------------------------------------------------------------------
 \section{Requirements}
-Source: design proposal v0.1~\cite{design_proposal} and project
-specification~\cite{project_spec}. Values become binding after approval at
-meeting~2; every change goes through the changelog below.
+Source: project specification and requirements changeover v0.2.
 
 \begin{requirements}
+<<<<<<< HEAD
 	\req{PA-01}{Gain}{$+15$\,dB (input $+1$\,dBm)}{\dpref{6}}
 	\req{PA-02}{Output power}{$+16$\,dBm average into 50\,$\Omega$ (useful sideband)}{\dpref{6}}
 	\req{PA-03}{Output compression}{OP1dB $\geq +24$\,dBm (8\,dB back-off)}{\dpref{6}, \specref{3}}
@@ -30,6 +27,26 @@ meeting~2; every change goes through the changelog below.
 	\req{PA-09}{Two-tone test}{6.000 and 6.001\,GHz, $+13$\,dBm per tone}{\dpref{10}}
 	\req{PA-10}{Modulated-signal test}{PAPR $\approx 10$\,dB at $+16$\,dBm; report EVM and ACPR; EVM $\leq -25$\,dB}{\dpref{6}, \specref{3}}
 	\req{PA-11}{Bias}{internal bias circuit, real \texttt{tsmcN40} devices (transformers/baluns from shared model)}{\specref{4}}
+=======
+	\req{PA-01}{VDD}{2\,V (VDD\_PA)}{SYS-04}
+	\req{PA-02}{Input interface}{differential, I9}{I9}
+	\req{PA-03}{Input coupling}{AC: transformer (DRV), see DRV-08}{I9}
+	\req{PA-04}{Input DC voltage}{centre tap, TBD (agree with DRV)}{I9}
+	\req{PA-05}{Input signal}{TBD (from DRV-10)}{I9}
+	\req{PA-06}{Input impedance}{$R_\mathrm{in} \geq$ TBD $\parallel$ $C_\mathrm{in} \leq$ TBD (earlier estimate $C \leq 500$\,fF diff.)}{I9}
+	\req{PA-07}{Output interface}{differential to single-ended, I10}{I10}
+	\req{PA-08}{Output coupling}{AC: output transformer / matching network (PA)}{I10}
+	\req{PA-09}{Output DC voltage}{internal, TBD (for information only)}{I10}
+	\req{PA-10}{Output signal}{$+16$\,dBm average into 50\,$\Omega$}{SYS-08}
+	\req{PA-11}{Output impedance / load}{50\,$\Omega$, $|S_{22}| \leq -10$\,dB, 5.9--6.1\,GHz}{I10}
+	\req{PA-12}{Frequency / bandwidth}{6\,GHz $\pm$ 10\,MHz}{SYS-02}
+	\req{PA-13}{Gain}{TBD}{}
+	\req{PA-14}{Noise}{N/A}{}
+	\req{PA-15}{Linearity}{OP1dB $\geq +24$\,dBm (8\,dB back-off)}{SYS-08}
+	\req{PA-16}{Supply current}{TBD}{}
+	\req{PA-17}{Power consumption}{TBD}{}
+	\req{PA-18}{PAE}{TBD (PAE at $+16$\,dBm)}{}
+>>>>>>> main
 \end{requirements}
 
 % -----------------------------------------------------------------------------
@@ -54,4 +71,5 @@ meeting~2; every change goes through the changelog below.
 
 \begin{changelog}
 	\change{2026-11-12}{integrator}{Requirements v0.1 from design proposal}{Starting point for meeting~2}{PA}{proposed}
+	\change{2026-11-17}{integrator}{Requirements v0.1 $\to$ v0.2 (standard table)}{Changeover, see requirements\_changeover.md}{PA}{proposed}
 \end{changelog}

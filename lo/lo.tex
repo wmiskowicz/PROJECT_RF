@@ -8,27 +8,31 @@
 \chapter{LO -- Local Oscillator}
 \label{ch:lo}
 
-% -----------------------------------------------------------------------------
-\section{Owner}
-\blockowner{} % <- fill in: Name Surname
+\blockowner{Zuzanna Schab}
 
 % -----------------------------------------------------------------------------
 \section{Requirements}
-Source: design proposal v0.1~\cite{design_proposal} and project
-specification~\cite{project_spec}. Values become binding after approval at
-meeting~2; every change goes through the changelog below.
+Source: project specification and requirements changeover v0.2.
 
 \begin{requirements}
-	\req{LO-01}{Frequency and tuning}{6.000\,GHz; tuning range $\geq \pm3\%$ (5.82--6.18\,GHz)}{\dpref{7}}
-	\req{LO-02}{Phase noise}{$\leq -110$\,dBc/Hz at 1\,MHz, slope $-20$\,dB/dec.\ ($\approx 0.8^\circ$ rms in 100\,kHz--10\,MHz)}{\dpref{7}}
-	\req{LO-03}{Output amplitude (I3, I8)}{0.6\,V peak diff.\ (1.2\,Vpp) $\pm15\%$ on both outputs, in RX and TX mode}{\dpref{7}, \dpref{8, I3/I8}}
-	\req{LO-04}{Output load}{$\leq 80$\,fF diff.\ per mixer + 30\,fF routing}{\dpref{7}}
-	\req{LO-05}{Distribution}{one buffer, two AC-coupled differential outputs (I3 to DMIX, I8 to UMIX)}{\dpref{7}}
-	\req{LO-06}{2nd harmonic}{$\leq -20$\,dBc at buffer output}{\dpref{7}}
-	\req{LO-07}{Frequency shift RX$\leftrightarrow$TX}{$\leq 1$\,MHz}{\dpref{7}}
-	\req{LO-08}{Tuning voltage (S5)}{\texttt{vtune} static 0--1.1\,V, set to 6.000\,GHz $\pm1\%$ (no PLL in v0.1)}{\dpref{8, S5}}
-	\req{LO-09}{Supply and current}{1.1\,V, 22\,mA: VCO 10\,mW + buffer 14\,mW}{\dpref{9}}
-	\req{LO-10}{Bias}{internal bias circuit, real \texttt{tsmcN40} devices only}{\specref{4}}
+	\req{LO-01}{VDD}{1.1\,V}{SYS-04}
+	\req{LO-02}{Input interface}{N/A}{}
+	\req{LO-03}{Input coupling}{N/A}{}
+	\req{LO-04}{Input DC voltage}{N/A}{}
+	\req{LO-05}{Input signal}{N/A}{}
+	\req{LO-06}{Input impedance}{N/A}{}
+	\req{LO-07}{Output interface}{differential, I3 and I7 together}{I3, I7}
+	\req{LO-08}{Output coupling}{AC: C + R at the mixers (DMIX, UMIX)}{I3, I7}
+	\req{LO-09}{Output DC voltage}{internal, TBD (for information only)}{I3, I7}
+	\req{LO-10}{Output signal}{TBD\,Vpp diff.\ (agree with DMIX and UMIX)}{I3, I7}
+	\req{LO-11}{Output impedance / load}{sum of both mixer LO inputs (DMIX-21 + UMIX-21), TBD}{I3, I7}
+	\req{LO-12}{Frequency / bandwidth}{frequency 6\,GHz; tuning range TBD}{SYS-02}
+	\req{LO-13}{Gain}{N/A}{}
+	\req{LO-14}{Noise}{N/A}{}
+	\req{LO-15}{Linearity}{N/A}{}
+	\req{LO-16}{Supply current}{TBD}{}
+	\req{LO-17}{Power consumption}{TBD}{}
+	\req{LO-22}{Phase noise}{TBD\,dBc/Hz at 1\,MHz offset}{}
 \end{requirements}
 
 % -----------------------------------------------------------------------------
@@ -53,4 +57,5 @@ meeting~2; every change goes through the changelog below.
 
 \begin{changelog}
 	\change{2026-11-12}{integrator}{Requirements v0.1 from design proposal}{Starting point for meeting~2}{LO}{proposed}
+	\change{2026-11-17}{integrator}{Requirements v0.1 $\to$ v0.2 (standard table)}{Changeover, see requirements\_changeover.md}{LO}{proposed}
 \end{changelog}

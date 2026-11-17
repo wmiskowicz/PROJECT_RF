@@ -8,25 +8,33 @@
 \chapter{DMIX -- Down-Conversion Mixer}
 \label{ch:dmix}
 
-% -----------------------------------------------------------------------------
-\section{Owner}
-\blockowner{} % <- fill in: Name Surname
+\blockowner{Michał Słupski}
 
 % -----------------------------------------------------------------------------
 \section{Requirements}
-Source: design proposal v0.1~\cite{design_proposal} and project
-specification~\cite{project_spec}. Values become binding after approval at
-meeting~2; every change goes through the changelog below.
+Source: project specification and requirements changeover v0.2.
 
 \begin{requirements}
-	\req{DMIX-01}{Conversion gain}{$+8$\,dB}{\dpref{5}}
-	\req{DMIX-02}{Noise figure}{$\leq 15$\,dB (SSB)}{\dpref{5}}
-	\req{DMIX-03}{IIP3}{$\geq -5$\,dBm (at RF input)}{\dpref{5}}
-	\req{DMIX-04}{RF input from LNA (I2)}{differential via transformer; $C_\mathrm{in} \leq 80$\,fF diff.; 1.8--7.1\,mVrms diff.}{\dpref{8, I2}}
-	\req{DMIX-05}{LO input (I3)}{differential, AC-coupled, 0.6\,V peak diff.; $C_\mathrm{in} \leq 80$\,fF diff.; own bias}{\dpref{8, I3}}
-	\req{DMIX-06}{BB output to VGA (I4)}{differential, AC-coupled, $f_\mathrm{c} \leq 100$\,kHz; 4.5--18\,mVrms diff.; $Z_\mathrm{out} \leq 2$\,k$\Omega$ diff.}{\dpref{8, I4}}
-	\req{DMIX-07}{Supply and current}{1.1\,V, 7\,mA (8\,mW)}{\dpref{9}}
-	\req{DMIX-08}{Bias}{internal bias circuit, real \texttt{tsmcN40} devices only}{\specref{4}}
+	\req{DMIX-01}{VDD}{1.1\,V}{SYS-04}
+	\req{DMIX-02}{Input interface}{differential, I2}{I2}
+	\req{DMIX-03}{Input coupling}{AC: transformer (LNA), see LNA-08}{I2}
+	\req{DMIX-04}{Input DC voltage}{centre tap, TBD (agree with LNA)}{I2}
+	\req{DMIX-05}{Input signal}{$\approx 0.28$\,mVpp\dots112\,mVpp diff.\ (from LNA-10)}{I2}
+	\req{DMIX-06}{Input impedance}{$R_\mathrm{in} \geq$ TBD $\parallel$ $C_\mathrm{in} \leq$ TBD (earlier estimate $C \leq 80$\,fF diff.)}{I2}
+	\req{DMIX-07}{Output interface}{differential, I4}{I4}
+	\req{DMIX-08}{Output coupling}{AC: C + R, $f_\mathrm{c} \approx 100$\,kHz (VGA)}{I4}
+	\req{DMIX-09}{Output DC voltage}{internal, TBD (for information only)}{I4}
+	\req{DMIX-10}{Output signal}{TBD (from conversion gain)}{I4}
+	\req{DMIX-11}{Output impedance / load}{VGA input (VGA-06), TBD; state $R_\mathrm{out}$}{I4}
+	\req{DMIX-12}{Frequency / bandwidth}{RF 6\,GHz $\pm$ 10\,MHz; BB 10\,MHz}{SYS-02}
+	\req{DMIX-13}{Gain}{conversion gain TBD (voltage, BB out / RF in)}{}
+	\req{DMIX-14}{Noise}{NF TBD (SSB)}{}
+	\req{DMIX-15}{Linearity}{IIP3 TBD (integrator budget)}{}
+	\req{DMIX-16}{Supply current}{TBD}{}
+	\req{DMIX-17}{Power consumption}{TBD}{}
+	\req{DMIX-19}{LO input interface / coupling}{differential, AC: C + R (DMIX), I3}{I3}
+	\req{DMIX-20}{LO input amplitude}{TBD\,Vpp diff.\ (agree with LO)}{I3}
+	\req{DMIX-21}{LO input impedance}{$R \parallel C$ TBD (seen by the LO buffer)}{I3}
 \end{requirements}
 
 \noindent\textit{Note:} the LPF is assigned to the VGA designer in the design
@@ -55,4 +63,5 @@ to DMIX.
 
 \begin{changelog}
 	\change{2026-11-12}{integrator}{Requirements v0.1 from design proposal}{Starting point for meeting~2}{DMIX}{proposed}
+	\change{2026-11-17}{integrator}{Requirements v0.1 $\to$ v0.2 (standard table)}{Changeover, see requirements\_changeover.md}{DMIX}{proposed}
 \end{changelog}
