@@ -12,27 +12,27 @@
 
 % -----------------------------------------------------------------------------
 \section{Requirements}
-Source: project specification and requirements changeover v0.2.
+Source: project specification and requirements changeover v0.3.
 
 \begin{requirements}
 	\req{LO-01}{VDD}{1.1\,V}{SYS-04}
-	\req{LO-02}{Input interface}{N/A}{}
-	\req{LO-03}{Input coupling}{N/A}{}
-	\req{LO-04}{Input DC voltage}{N/A}{}
+	\req{LO-02}{Input interface}{N/A ($V_{\mathrm{tune}}$: $0$--$1.1\,\mathrm{V}$ DC)}{}
+	\req{LO-03}{Input coupling}{N/A (DC for $V_{\mathrm{tune}}$)}{}
+	\req{LO-04}{Input DC voltage}{N/A ($0.55\,\mathrm{V}$ nominal for $V_{\mathrm{tune}}$)}{}
 	\req{LO-05}{Input signal}{N/A}{}
-	\req{LO-06}{Input impedance}{N/A}{}
+	\req{LO-06}{Input impedance}{N/A ($>10\,\mathrm{k\Omega}$ at $V_{\mathrm{tune}}$)}{}
 	\req{LO-07}{Output interface}{differential, I3 and I7 together}{I3, I7}
-	\req{LO-08}{Output coupling}{AC: C + R at the mixers (DMIX, UMIX)}{I3, I7}
-	\req{LO-09}{Output DC voltage}{internal, TBD (for information only)}{I3, I7}
-	\req{LO-10}{Output signal}{TBD\,Vpp diff.\ (agree with DMIX and UMIX)}{I3, I7}
-	\req{LO-11}{Output impedance / load}{sum of both mixer LO inputs (DMIX-21 + UMIX-21), TBD}{I3, I7}
-	\req{LO-12}{Frequency / bandwidth}{frequency 6\,GHz; tuning range TBD}{SYS-02}
+	\req{LO-08}{Output coupling}{AC: C + R at the mixers (DMIX, UMIX)}{I3, I7, SYS-11}
+	\req{LO-09}{Output DC voltage}{$\approx 0.55\,\mathrm{V}$ (buffer bias, blocked by AC coupling)}{I3, I7}
+	\req{LO-10}{Output signal}{$0.6\,\mathrm{V_{pp,diff}}$ ($0.4$--$0.8\,\mathrm{V_{pp,diff}}$)}{I3, I7, DMIX-20}
+	\req{LO-11}{Output impedance / load}{$(R_{\mathrm{DMIX}} \parallel R_{\mathrm{UMIX}}) \parallel (C_{\mathrm{DMIX}} + C_{\mathrm{UMIX}})$; target $R_L \geq 2\,\mathrm{k\Omega} \parallel C_L \leq 250\,\mathrm{fF}$ diff.}{I3, I7, DMIX-21}
+	\req{LO-12}{Frequency / bandwidth}{$6.0\,\mathrm{GHz}$; tuning range $5.7$--$6.3\,\mathrm{GHz}$ ($\pm 5\%$)}{SYS-02}
 	\req{LO-13}{Gain}{N/A}{}
 	\req{LO-14}{Noise}{N/A}{}
 	\req{LO-15}{Linearity}{N/A}{}
-	\req{LO-16}{Supply current}{TBD}{}
-	\req{LO-17}{Power consumption}{TBD}{}
-	\req{LO-22}{Phase noise}{TBD\,dBc/Hz at 1\,MHz offset}{}
+	\req{LO-16}{Supply current}{$\leq 8\,\mathrm{mA}$ (VCO core $\approx 4\,\mathrm{mA}$ + buffer $\approx 4\,\mathrm{mA}$)}{\specref{3}}
+	\req{LO-17}{Power consumption}{$\leq 8.8\,\mathrm{mW}$ at $1.1\,\mathrm{V}$}{SYS-04}
+	\req{LO-22}{Phase noise}{$\leq -105\,\mathrm{dBc/Hz}$ at $1\,\mathrm{MHz}$ offset}{SYS-02, SYS-06}
 \end{requirements}
 
 % -----------------------------------------------------------------------------
@@ -58,4 +58,5 @@ Source: project specification and requirements changeover v0.2.
 \begin{changelog}
 	\change{2026-11-12}{integrator}{Requirements v0.1 from design proposal}{Starting point for meeting~2}{LO}{proposed}
 	\change{2026-11-17}{integrator}{Requirements v0.1 $\to$ v0.2 (standard table)}{Changeover, see requirements\_changeover.md}{LO}{proposed}
+	\change{2026-11-18}{integrator}{Requirements v0.2 $\to$ v0.3 (standard table)}{Changeover, see requirements\_changeover.md}{LO}{proposed}
 \end{changelog}
