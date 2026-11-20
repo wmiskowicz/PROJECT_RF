@@ -8,7 +8,8 @@
 %     <block>/images/         figures of that block
 %     <block>/commit.sh       commit helper (to be written)
 %
-%  Build:  latexmk -pdf RF_PROJECT.tex
+%  This file lives in doc/ so all LaTeX products are generated there.
+%  Build:  cd doc && latexmk -pdf RF_PROJECT.tex  (or scripts/build_pdf.sh)
 % =============================================================================
 
 % aghdpl.cls (used in example.tex) is not installed here. When it is added to
@@ -35,7 +36,7 @@
 % Default backend is biber. On machines where biber cannot run (e.g. old glibc),
 % scripts/install_latex.sh creates a local, git-ignored bibbackend.tex that
 % defines \bibbackend as bibtex.
-\IfFileExists{bibbackend.tex}{\input{bibbackend.tex}}{\newcommand{\bibbackend}{biber}}
+\IfFileExists{../bibbackend.tex}{\input{../bibbackend.tex}}{\newcommand{\bibbackend}{biber}}
 \usepackage[
 style=numeric,
 sorting=none,
@@ -53,7 +54,7 @@ backend=\bibbackend
 \usepackage{csquotes}
 \DeclareQuoteAlias{croatian}{polish}
 
-\addbibresource{bibliografia.bib}
+\addbibresource{./bibliografia.bib}
 
 % --- < listings > ---
 \usepackage{courier}
@@ -82,7 +83,7 @@ backend=\bibbackend
 }
 
 % --- < figures > ---
-\graphicspath{{./images}}
+\graphicspath{{../}{../images/}}
 
 % --- < tables > ---
 \usepackage{array}
@@ -174,7 +175,7 @@ backend=\bibbackend
 	\begin{center}
 		\vspace*{0mm}
 
-		\includegraphics[scale=0.6]{./images/agh.jpg}
+		\includegraphics[scale=0.6]{../images/agh.jpg}
 
 		\vspace*{2mm}
 
@@ -221,14 +222,15 @@ backend=\bibbackend
 \clearpage
 
 % --- < block chapters: system first, then RX, LO, TX chain order > ---
-\include{integrator/integrator}
-\include{lna/lna}
-\include{dmix/dmix}
-\include{vga/vga}
-\include{lo/lo}
-\include{umix/umix}
-\include{drv/drv}
-\include{pa/pa}
+% input (not include): include would write <block>.aux outside doc/, which TeX forbids.
+\input{../integrator/integrator}
+\input{../lna/lna}
+\input{../dmix/dmix}
+\input{../vga/vga}
+\input{../lo/lo}
+\input{../umix/umix}
+\input{../drv/drv}
+\input{../pa/pa}
 
 \printbibliography
 

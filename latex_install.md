@@ -96,11 +96,11 @@ Also check the PATH from step 1 is set. Open the **LaTeX Workshop** output panel
 
 ## 6. Build from the terminal instead
 
-`RF_PROJECT.tex` is in the repository root, the parent folder of `scripts/`. From inside the cloned repository (any subfolder) run:
+`RF_PROJECT.tex` is in `doc/`, next to which all build products are generated. From inside the cloned repository (any subfolder) run:
 
 ```sh
 cd "$(git rev-parse --show-toplevel)"
-latexmk -pdf RF_PROJECT.tex
+cd doc && latexmk -pdf RF_PROJECT.tex
 ```
 
 The result is `RF_PROJECT.pdf`. latexmk runs pdflatex and biber as many times as needed.
@@ -108,7 +108,7 @@ The result is `RF_PROJECT.pdf`. latexmk runs pdflatex and biber as many times as
 To remove build files:
 
 ```sh
-latexmk -C RF_PROJECT.tex
+(cd doc && latexmk -C RF_PROJECT.tex)
 ```
 
 Build files and the PDF are in `.gitignore`, so don't commit them.
@@ -130,8 +130,8 @@ tlmgr install <package-name>
 cat > bibbackend.tex <<'EOF'
 \newcommand{\bibbackend}{bibtex}
 EOF
-latexmk -C RF_PROJECT.tex      # drop stale biber build files
-latexmk -pdf RF_PROJECT.tex
+(cd doc && latexmk -C RF_PROJECT.tex)      # drop stale biber build files
+cd doc && latexmk -pdf RF_PROJECT.tex
 ```
 
 Delete `bibbackend.tex` to go back to `biber`.
