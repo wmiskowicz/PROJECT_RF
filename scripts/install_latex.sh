@@ -106,7 +106,7 @@ else
         printf '%s\n' '% Local override created by scripts/install_latex.sh (git-ignored).' \
                       '\newcommand{\bibbackend}{bibtex}' > "$BACKEND_FILE"
         say "Created $BACKEND_FILE: the project now uses the bibtex backend."
-        say "Run 'latexmk -C RF_PROJECT.tex' once to drop stale biber build files."
+        say "Run '(cd doc && latexmk -C RF_PROJECT.tex)' once to drop stale biber build files."
         CHANGED=1
     fi
 fi
