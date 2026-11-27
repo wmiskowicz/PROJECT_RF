@@ -20,19 +20,19 @@ Source: project specification and requirements changeover v0.2.
 	\req{PA-03}{Input coupling}{AC: transformer (DRV), see DRV-08}{I9}
 	\req{PA-04}{Input DC voltage}{centre tap, TBD (agree with DRV)}{I9}
 	\req{PA-05}{Input signal}{TBD (from DRV-10)}{I9}
-	\req{PA-06}{Input impedance}{$R_\mathrm{in} \geq$ TBD $\parallel$ $C_\mathrm{in} \leq$ TBD (earlier estimate $C \leq 500$\,fF diff.)}{I9}
+	\req{PA-06}{Input impedance}{$R_\mathrm{in} \geq \mathrm{TBD} \parallel C_\mathrm{in} \leq \mathrm{TBD}$ (earlier estimate: $C_\mathrm{in} \leq 500\,\mathrm{fF}$ diff.)}{I9}
 	\req{PA-07}{Output interface}{differential to single-ended, I10}{I10}
 	\req{PA-08}{Output coupling}{AC: output transformer / matching network (PA)}{I10}
 	\req{PA-09}{Output DC voltage}{internal, TBD (for information only)}{I10}
-	\req{PA-10}{Output signal}{$+16$\,dBm average into 50\,$\Omega$}{SYS-08}
-	\req{PA-11}{Output impedance / load}{50\,$\Omega$, $|S_{22}| \leq -10$\,dB, 5.9--6.1\,GHz}{I10}
-	\req{PA-12}{Frequency / bandwidth}{6\,GHz $\pm$ 10\,MHz}{SYS-02}
+	\req{PA-10}{Output signal}{$+16\,\mathrm{dBm}$ average into $50\,\Omega$}{SYS-08}
+	\req{PA-11}{Output impedance / load}{$50\,\Omega$, $|S_{22}| \leq -10\,\mathrm{dB}$, $5.9$--$6.1\,\mathrm{GHz}$}{I10}
+	\req{PA-12}{Frequency / bandwidth}{$6\,\mathrm{GHz} \pm 10\,\mathrm{MHz}$}{SYS-02}
 	\req{PA-13}{Gain}{TBD}{}
 	\req{PA-14}{Noise}{N/A}{}
-	\req{PA-15}{Linearity}{OP1dB $\geq +24$\,dBm (8\,dB back-off)}{SYS-08}
+	\req{PA-15}{Linearity}{OP1dB $\geq +24\,\mathrm{dBm}$ ($8\,\mathrm{dB}$ back-off)}{SYS-08}
 	\req{PA-16}{Supply current}{TBD}{}
 	\req{PA-17}{Power consumption}{TBD}{}
-	\req{PA-18}{PAE}{TBD (PAE at $+16$\,dBm)}{}
+	\req{PA-18}{PAE}{TBD (PAE at $+16\,\mathrm{dBm}$)}{}
 \end{requirements}
 
 % -----------------------------------------------------------------------------
@@ -52,6 +52,85 @@ Source: project specification and requirements changeover v0.2.
 
 \figplaceholder{PA simulation results}{fig:pa-results}
 
+% -----------------------------------------------------------------------------
+
+\subsection{Ideal Behavioral Model}
+
+As a reference for the designed power amplifier (PA), an ideal fully differential amplifier model has been implemented in Verilog-A. 
+This behavioral model will be used as an ideal representation of the PA block during the initial system-level simulations and verification of 
+the complete RF signal chain.
+
+The amplifier has a differential input interface (\texttt{inp}, \texttt{inn}) and a differential output interface (\texttt{outp}, \texttt{outn}). 
+The output differential voltage is proportional to the input differential voltage, according to the specified voltage gain:
+
+\begin{equation}
+    V_{\mathrm{out,diff}} =
+    A_v \cdot V_{\mathrm{in,diff}}
+\end{equation}
+
+where:
+
+\begin{equation}
+    V_{\mathrm{in,diff}} = V(\texttt{inp}) - V(\texttt{inn})
+\end{equation}
+
+\begin{equation}
+    A_v = 10^{G_{\mathrm{dB}}/20}
+\end{equation}
+
+The model also includes differential input resistance and independent series output resistances. 
+The two output signals have equal amplitudes and opposite phases, assuming zero output common-mode voltage.
+
+The Verilog-A implementation is presented below.
+
+\begin{verbatim}
+	`include "constants.vams"
+	`include "disciplines.vams"
+	
+	module ideal_PA(inp, inn, outp, outn);
+	
+		input inp, inn;
+		output outp, outn;
+	
+		electrical inp, inn, outp, outn;
+		electrical nsrcp, nsrcn;
+	
+		parameter real gain_db = 20.0;
+		parameter real Rin = 50.0;
+		parameter real Rout = 50.0;
+	
+		real Av;
+		real Vdiff;
+	
+		analog begin
+	
+			// Differential voltage gain
+			Av = pow(10.0, gain_db/20.0);
+	
+			// Differential input voltage
+			Vdiff = V(inp, inn);
+	
+			// Differential input resistance
+			I(inp, inn) <+ V(inp, inn)/Rin;
+	
+			// Controlled differential voltage sources
+			V(nsrcp) <+ (Av/2.0) * Vdiff;
+			V(nsrcn) <+ -(Av/2.0) * Vdiff;
+	
+			// Output resistance
+			I(outp, nsrcp) <+ V(outp, nsrcp)/Rout;
+			I(outn, nsrcn) <+ V(outn, nsrcn)/Rout;
+	
+		end
+	
+	endmodule
+	\end{verbatim}
+
+
+	This ideal behavioral model will serve as a reference for the subsequent design and simulation stages. 
+	It allows the PA block to be integrated into the complete system before the transistor-level implementation is finalized. 
+	The model will also facilitate comparison between ideal and transistor-level simulation results.
+	
 % -----------------------------------------------------------------------------
 \section{Changelog}
 
