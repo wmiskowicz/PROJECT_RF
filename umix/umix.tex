@@ -8,34 +8,41 @@
 \chapter{UMIX + BPF -- Up-Conversion Mixer and Band-Pass Filter}
 \label{ch:umix}
 
-\blockowner{Łukasz Perczński}
+\blockowner{Łukasz Perczyński}
 
 % -----------------------------------------------------------------------------
 \section{Requirements}
-Source: project specification and requirements changeover v0.2.
+Source: project specification, requirements changeover v0.2 and the system budget v0.4
+(section~\ref{sec:integrator-budget}). Row UMIX-22 is block-specific.
 
 \begin{requirements}
 	\req{UMIX-01}{VDD}{1.1\,V}{SYS-04}
 	\req{UMIX-02}{Input interface}{differential, I6}{I6}
 	\req{UMIX-03}{Input coupling}{DC}{I6}
-	\req{UMIX-04}{Input DC voltage}{binding, TBD (proposed 0.55\,V); equals the BB source output DC}{I6}
-	\req{UMIX-05}{Input signal}{TBD (BB source)}{I6}
-	\req{UMIX-06}{Input impedance}{$R_\mathrm{in} \geq$ TBD $\parallel$ $C_\mathrm{in} \leq$ TBD}{I6}
+	\req{UMIX-04}{Input DC voltage}{\textbf{binding: 0.55\,V $\pm$ 50\,mV} (DAC output common mode); the UMIX must work over this whole range}{I6}
+	\req{UMIX-05}{Input signal}{nominal 200\,mVpp diff.\ CW (70\,mVrms, $-14$\,dBFS; OFDM peaks $\approx 0.22$\,V pk diff.); DAC full scale 1.0\,Vpp diff.\ must not damage or latch the UMIX}{I6}
+	\req{UMIX-06}{Input impedance}{$R_\mathrm{in} \geq 10$\,k$\Omega$ $\parallel$ $C_\mathrm{in} \leq 1$\,pF diff.\ (DAC source 200\,$\Omega$ diff.)}{I6}
 	\req{UMIX-07}{Output interface}{differential, I8}{I8}
-	\req{UMIX-08}{Output coupling}{AC: transformer (UMIX) or C + R (DRV); UMIX and DRV owners decide and record it}{I8}
-	\req{UMIX-09}{Output DC voltage}{TBD (transformer centre tap or internal)}{I8}
-	\req{UMIX-10}{Output signal}{TBD}{I8}
-	\req{UMIX-11}{Output impedance / load}{DRV input (DRV-06), TBD}{I8}
-	\req{UMIX-12}{Frequency / bandwidth}{RF 6\,GHz $\pm$ 10\,MHz; BB 10\,MHz}{SYS-02}
-	\req{UMIX-13}{Gain}{conversion gain TBD (useful sideband)}{}
-	\req{UMIX-14}{Noise}{N/A}{}
-	\req{UMIX-15}{Linearity}{OP1dB TBD (dBm)}{}
-	\req{UMIX-16}{Supply current}{TBD}{}
-	\req{UMIX-17}{Power consumption}{TBD}{}
-	\req{UMIX-19}{LO input interface / coupling}{differential, AC: C + R (UMIX), I7}{I7}
-	\req{UMIX-20}{LO input amplitude}{TBD\,Vpp diff.\ (agree with LO)}{I7}
-	\req{UMIX-21}{LO input impedance}{$R \parallel C$ TBD (seen by the LO buffer)}{I7}
+	\req{UMIX-08}{Output coupling}{AC: \textbf{transformer used as the UMIX load} (= BPF tank), owned by UMIX (rule~1). Proposed, DRV owner confirms}{I8}
+	\req{UMIX-09}{Output DC voltage}{primary centre tap at VDD; secondary DC-floating (AC-grounded centre tap); DRV biases its own gates (DRV-04)}{I8}
+	\req{UMIX-10}{Output signal}{0.1\,V pk diff.\ (0.2\,Vpp) per wanted sideband at the DRV input, nominal}{I8, BUD-06}
+	\req{UMIX-11}{Output impedance / load}{DRV input $R \geq 1$\,k$\Omega$ $\parallel$ $C \leq 150$\,fF diff.\ (DRV-06), resonated by the tank}{I8}
+	\req{UMIX-12}{Frequency / bandwidth}{RF 6\,GHz $\pm$ 10\,MHz; BB DC\dots10\,MHz; BPF (tank) centred at 6.0\,GHz, loaded $Q \approx 5$--10, attenuation $\geq 20$\,dB at 12\,GHz and $\geq 25$\,dB at 18\,GHz}{SYS-02}
+	\req{UMIX-13}{Gain}{conversion gain \textbf{0\,dB $\pm$ 1.5\,dB} per wanted sideband (RF pk diff.\ at the DRV input / BB pk diff.), BPF loss included}{BUD-06}
+	\req{UMIX-14}{Noise}{N/A (TDD, no RX desensitisation)}{}
+	\req{UMIX-15}{Linearity}{$OP_\mathrm{1dB} \geq 0.4$\,V pk diff.\ per wanted sideband ($\geq 12$\,dB above nominal); two-tone BB (2 $\times$ 50\,mVrms): IM3 $\leq -40$\,dBc}{BUD-05}
+	\req{UMIX-16}{Supply current}{$\leq 6$\,mA (budget)}{BUD-09}
+	\req{UMIX-17}{Power consumption}{$\leq 6.6$\,mW}{BUD-09}
+	\req{UMIX-19}{LO input interface / coupling}{differential, AC: C + R (UMIX), I7; switch gate DC set inside the UMIX}{I7}
+	\req{UMIX-20}{LO input amplitude}{1.0\,Vpp diff.\ nominal; UMIX-13 and UMIX-15 met over 0.8\dots1.2\,Vpp diff.}{I7, BUD-07}
+	\req{UMIX-21}{LO input impedance}{$R \geq 5$\,k$\Omega$ $\parallel$ $C \leq 80$\,fF diff.\ (seen by the LO buffer)}{I7}
+	\req{UMIX-22}{Spurious output}{LO feedthrough $\leq -30$\,dBc relative to the wanted sideband (incl.\ $\pm 50$\,mV DAC CM and 5\,mV diff.\ DAC offset); the unwanted sideband is not filtered (no I/Q, see TX budget)}{SYS-08}
 \end{requirements}
+
+\noindent\textit{Budget notes.} The 0.55\,V input common mode leaves no room for a tail
+current source under an NMOS $g_m$ pair at 1.1\,V. Use a pseudo-differential,
+resistively degenerated $g_m$ stage or a PMOS input. The 12\,dB back-off makes
+sure the UMIX never limits the TX $P_\mathrm{1dB}$ (BUD-05).
 
 % -----------------------------------------------------------------------------
 \section{Overview}
@@ -60,4 +67,5 @@ Source: project specification and requirements changeover v0.2.
 \begin{changelog}
 	\change{2026-11-12}{integrator}{Requirements v0.1 from design proposal}{Starting point for meeting~2}{UMIX}{proposed}
 	\change{2026-11-17}{integrator}{Requirements v0.1 $\to$ v0.2 (standard table)}{Changeover, see requirements\_changeover.md}{UMIX}{proposed}
+	\change{2026-11-27}{integrator}{Requirements v0.4: TBD $\to$ values (UMIX-04\dots06, -08\dots-13, -15\dots-17, -20, -21); spurious row UMIX-22 added; I8 coupling set to UMIX transformer}{System budget and DAC model, section~\ref{sec:integrator-budget}}{UMIX, DRV, LO}{proposed}
 \end{changelog}

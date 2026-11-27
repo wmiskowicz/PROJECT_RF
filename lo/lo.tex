@@ -11,9 +11,11 @@
 \blockowner{Zuzanna Schab}
 % -----------------------------------------------------------------------------
 \section{Requirements}
-Source: project specification and requirements changeover v0.2.
+Source: project specification, requirements changeover v0.2 and the system budget v0.4
+(section~\ref{sec:integrator-budget}).
 
-\req{LO-01}{VDD}{$1.1\,\mathrm{V}$}{SYS-04}
+\begin{requirements}
+	\req{LO-01}{VDD}{$1.1\,\mathrm{V}$}{SYS-04}
 	\req{LO-02}{Input interface}{Control voltage $V_{\mathrm{tune}}$: $0$--$1.1\,\mathrm{V}$ DC + digital capacitor-bank control bits $SW\langle N{-}1{:}0\rangle$ ($0$ / $1.1\,\mathrm{V}$)}{}
 	\req{LO-03}{Input coupling}{DC (varactor tuning \& switched-capacitor bank)}{}
 	\req{LO-04}{Input DC voltage}{$0.55\,\mathrm{V}$ nominal for $V_{\mathrm{tune}}$ ($V_{\mathrm{DD}}/2$)}{}
@@ -22,8 +24,8 @@ Source: project specification and requirements changeover v0.2.
 	\req{LO-07}{Output interface}{Quadrature I/Q (two differential pairs: $I_{+}/I_{-}$ and $Q_{+}/Q_{-}$, $90^\circ$ phase shift), I3 and I7 together}{I3, I7}
 	\req{LO-08}{Output coupling}{AC: coupling capacitor + bias network at the mixers (DMIX, UMIX)}{I3, I7, SYS-11}
 	\req{LO-09}{Output DC voltage}{$\approx 0.55\,\mathrm{V}$ (buffer common-mode bias, blocked by AC coupling)}{I3, I7}
-	\req{LO-10}{Output signal}{$0.6\,\mathrm{V_{pp,diff}}$ per I/Q branch ($0.4$--$0.8\,\mathrm{V_{pp,diff}}$); internal VCO core swing $1.0$--$1.3\,\mathrm{V_{pp,se}}$}{I3, I7, DMIX-20}
-	\req{LO-11}{Output impedance / load}{Per I/Q branch: $(R_{\mathrm{DMIX}} \parallel R_{\mathrm{UMIX}}) \parallel (C_{\mathrm{DMIX}} + C_{\mathrm{UMIX}})$; target $R_L \geq 2\,\mathrm{k\Omega} \parallel C_L \leq 250\,\mathrm{fF}$ diff.}{I3, I7, DMIX-21}
+	\req{LO-10}{Output signal}{$1.0\,\mathrm{V_{pp,diff}}$ per I/Q branch at the mixer LO pins, $0.8$--$1.2\,\mathrm{V_{pp,diff}}$ over PVT, with both mixers connected; internal VCO core swing $1.0$--$1.3\,\mathrm{V_{pp,se}}$}{I3, I7, BUD-07}
+	\req{LO-11}{Output impedance / load}{Per I/Q branch: $(R_{\mathrm{DMIX}} \parallel R_{\mathrm{UMIX}}) \parallel (C_{\mathrm{DMIX}} + C_{\mathrm{UMIX}})$ = $\geq 2.5\,\mathrm{k\Omega} \parallel \leq 160\,\mathrm{fF}$ diff.\ (DMIX-21, UMIX-21) + routing; design target $R_L \geq 2\,\mathrm{k\Omega} \parallel C_L \leq 250\,\mathrm{fF}$ diff. The Q branch drives an identical dummy load until the Q mixers exist (stretch)}{I3, I7, DMIX-21}
 	\req{LO-12}{Frequency / bandwidth}{$6.0\,\mathrm{GHz}$ nominal (Wi-Fi\,6E $6\,\mathrm{GHz}$ band); output tuning range $5.7$--$6.45\,\mathrm{GHz}$ (internal LC-VCO core: $11.4$--$12.9\,\mathrm{GHz}$ plus PVT margin)}{SYS-02}
 	\req{LO-13}{Gain}{VCO tuning sensitivity $K_{\mathrm{VCO}} \approx 50$--$150\,\mathrm{MHz/V}$ at $6\,\mathrm{GHz}$ output ($100$--$300\,\mathrm{MHz/V}$ at $12\,\mathrm{GHz}$ core)}{}
 	\req{LO-14}{Noise}{N/A (specified via Phase Noise in LO-22)}{}
@@ -58,4 +60,5 @@ Source: project specification and requirements changeover v0.2.
 	\change{2026-11-18}{lo}{Requirements v0.2 $\to$ v0.3 (standard table)}{Changeover, see requirements\_changeover.md}{LO}{proposed}
 	\change{2026-11-20}{lo}{Proposed values for TBD fields in LO requirements (quadrature I/Q, Wi-Fi 6)}{Aligned with I3/I7 (DMIX, UMIX), Wi-Fi 6 1024-QAM specs, and 12\,GHz VCO + $\div 2$ architecture}{LO}{proposed}
 	\change{2026-11-20}{lo}{Refined internal 12\,GHz LC-VCO core targets (frequency, phase noise, $K_{\mathrm{VCO}}$, switched-cap + varactor tuning)}{Mapped 6\,GHz LO system specs to 12\,GHz NMOS cross-coupled LC-VCO + $\div 2$ divider in TSMC 40\,nm}{LO}{proposed}
+	\change{2026-11-27}{integrator}{LO-10: 0.6 (0.4--0.8) $\to$ 1.0 (0.8--1.2)\,Vpp diff.; LO-11: mixer load values and Q-branch dummy load added; missing \texttt{requirements} environment restored}{0.6\,Vpp diff.\ switches the mixer quads too slowly for the DMIX noise budget (DMIX-14); a tuned buffer keeps LO-16}{LO, DMIX, UMIX}{proposed}
 \end{changelog}

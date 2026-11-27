@@ -36,16 +36,40 @@ Source: project specification and requirements changeover v0.2.
 	\req{SYS-11}{Coupling rule}{see the coupling rules below and the interface table}{\specref{2--3}}
 \end{requirements}
 
+\subsection{Derived system budget}\label{sec:integrator-budget-req}
+These rows are not in the specification. They follow from SYS-06\dots SYS-08 and
+from the converter models in section~\ref{sec:integrator-converters}. Every block
+requirement table refers back to them. The derivations are in
+section~\ref{sec:integrator-budget}.
+
+\begin{requirements}
+	\req{BUD-01}{RX noise figure (budget)}{NF$_\mathrm{SSB} \leq 7.5$\,dB at maximum gain (estimate 7.3\,dB, 2.7\,dB margin to SYS-06); measured SSB with one tone, single (I) mixer}{SYS-06}
+	\req{BUD-02}{RX linearity}{$P_\mathrm{1dB,in} \geq -22$\,dBm and IIP3 $\geq -12$\,dBm at minimum gain, referred to the RX input (estimate $-11.4$\,dBm)}{SYS-07}
+	\req{BUD-03}{RX voltage gain (pin $\to$ ADC)}{21\dots77\,dB (LNA 15 + DMIX 8 + VGA $-2$\dots54); nominal AGC target 100\,mVrms diff.\ at the ADC}{SYS-07}
+	\req{BUD-04}{RX IIP2}{$\geq +35$\,dBm referred to the RX input}{SYS-03}
+	\req{BUD-05}{TX chain $OP_\mathrm{1dB}$}{$\geq +24$\,dBm at the antenna; every stage before the PA compresses $\geq 2$\,dB later than the PA (referred to the PA output)}{SYS-08}
+	\req{BUD-06}{TX nominal level plan}{DAC 70\,mVrms diff.\ $\to$ $+16$\,dBm at the antenna (section~\ref{tab:integrator-tx-levels})}{SYS-08}
+	\req{BUD-07}{LO amplitude at each mixer}{1.0\,Vpp diff.\ nominal, 0.8\dots1.2\,Vpp diff.\ over PVT}{SYS-03}
+	\req{BUD-08}{Power, RX mode}{$\leq 45$\,mW from 1.1\,V (LNA + DMIX + VGA + LO)}{\specref{3}}
+	\req{BUD-09}{Power, TX mode}{$\leq 400$\,mW (UMIX + DRV + LO from 1.1\,V, PA from 2\,V)}{\specref{3}}
+\end{requirements}
+
 \subsection{Coupling rules}
 \begin{enumerate}
 	\item If the driving stage already has an inductive load, that load is made a
-	      \textbf{transformer/balun}. It also gives AC coupling, single-ended to
-	      differential conversion and a centre-tap bias. The \textbf{driving} block owns it.
+	      \textbf{transformer/balun}. It also gives AC coupling and single-ended to
+	      differential conversion. The \textbf{driving} block owns it.
+	\item \textbf{Bias across a transformer.} The secondary of an interface transformer
+	      is \textbf{DC-floating}: its centre tap is only AC-grounded (MIM capacitor
+	      $\geq 2$\,pF, owned by the driving block) and has no DC path to VDD or ground.
+	      The \textbf{receiving} block sets the DC level of its own input gates through
+	      its own bias resistors ($\geq 5$\,k$\Omega$ per side, so they do not load the
+	      tank). No bias voltage crosses a block boundary (\specref{4}).
 	\item Otherwise use a \textbf{MIM capacitor plus bias resistor} in the \textbf{receiving} block.
 	\item No coil is added only for coupling.
 	\item Baseband: DMIX$\to$VGA is AC-coupled (removes the DC offset from LO
-	      self-mixing). The baseband edges (VGA$\to$ADC, BB source$\to$UMIX) are
-	      DC-coupled with an agreed common-mode level.
+	      self-mixing). The baseband edges (VGA$\to$ADC, DAC$\to$UMIX) are
+	      DC-coupled with a common mode of \textbf{0.55\,V}.
 	\item Impedances: 50\,$\Omega$ ports are given as $Z$ plus $|S_{11}|$/$|S_{22}|$;
 	      on-chip ports as $R \parallel C$. The \textbf{receiving} block owns the number;
 	      the driving block meets its own specification into that load.
@@ -61,15 +85,36 @@ I3 and I7 together, so the LO output load is the sum of both mixer inputs.
 	\textbf{ID} & \textbf{From $\to$ To} & \textbf{Freq.} & \textbf{Type} & \textbf{Coupling} & \textbf{Owner} \\
 	\midrule
 	I1 & Antenna (50\,$\Omega$) $\to$ LNA & 6\,GHz & SE & AC: series C in the LNA input match & LNA \\
-	I2 & LNA $\to$ DMIX & 6\,GHz & SE $\to$ diff. & AC: \textbf{transformer used as the LNA load}; centre tap biases the DMIX & LNA \\
+	I2 & LNA $\to$ DMIX & 6\,GHz & SE $\to$ diff. & AC: \textbf{transformer used as the LNA load}; secondary DC-floating, DMIX biases its own gates & LNA \\
 	I3 & LO $\to$ DMIX & 6\,GHz & diff. & AC: C + R at the DMIX LO input & DMIX \\
-	I4 & DMIX $\to$ VGA & BB $\leq 10$\,MHz & diff. & AC: C + R, $f_\mathrm{c} \approx 100$\,kHz & VGA \\
-	I5 & VGA $\to$ ADC load & BB & diff. & \textbf{DC}, common mode TBD (proposed 0.55\,V = VDD/2) & -- \\
-	I6 & BB source $\to$ UMIX & BB & diff. & \textbf{DC}, common mode TBD (proposed 0.55\,V) & -- \\
+	I4 & DMIX $\to$ VGA & BB $\leq 10$\,MHz & diff. & AC: C + R, $f_\mathrm{c} \leq 100$\,kHz & VGA \\
+	I5 & VGA $\to$ ADC load & BB & diff. & \textbf{DC}, common mode 0.55\,V & -- \\
+	I6 & DAC $\to$ UMIX & BB & diff. & \textbf{DC}, common mode 0.55\,V & -- \\
 	I7 & LO $\to$ UMIX & 6\,GHz & diff. & AC: C + R at the UMIX LO input & UMIX \\
-	I8 & UMIX $\to$ DRV & 6\,GHz & diff. & AC: transformer (UMIX load) \textbf{or} C + R (DRV); the two owners choose and record it & UMIX or DRV \\
-	I9 & DRV $\to$ PA & 6\,GHz & diff. & AC: \textbf{transformer used as the DRV load} (resonates the large PA $C_\mathrm{in}$; centre tap biases the PA) & DRV \\
+	I8 & UMIX $\to$ DRV & 6\,GHz & diff. & AC: \textbf{transformer used as the UMIX load} (= BPF tank, rule~1); secondary DC-floating. Proposed, UMIX and DRV owners confirm & UMIX \\
+	I9 & DRV $\to$ PA & 6\,GHz & diff. & AC: \textbf{transformer used as the DRV load} (resonates the large PA $C_\mathrm{in}$); secondary DC-floating, PA biases its own gates & DRV \\
 	I10 & PA $\to$ antenna (50\,$\Omega$) & 6\,GHz & diff. $\to$ SE & output transformer / matching network & PA \\
+	\bottomrule
+\end{tabularx}\par\normalsize
+
+\medskip
+\noindent Levels at each interface (CW test tone, nominal; ``diff.'' = differential,
+``pk'' = peak, ``Vpp'' = peak-to-peak):
+
+\par\medskip\noindent\small
+\begin{tabularx}{\textwidth}{@{}l P{0.17\textwidth} P{0.25\textwidth} L@{}}
+	\toprule
+	\textbf{ID} & \textbf{DC level} & \textbf{Signal (min \dots max)} & \textbf{Load (owned by the receiver)} \\
+	\midrule
+	I1 & LNA gate $\approx 0.45$\,V (internal) & $-82$\dots$-30$\,dBm (50\,$\mu$Vpp\dots20\,mVpp at the pin) & 50\,$\Omega$, $|S_{11}| \leq -10$\,dB \\
+	I2 & 0.55\,V, set by DMIX & 0.28\dots112\,mVpp diff. & $\geq 2$\,k$\Omega$ $\parallel$ $\leq 80$\,fF diff. \\
+	I3, I7 & set by each mixer & 1.0\,Vpp diff.\ (0.8\dots1.2) & per mixer $\geq 5$\,k$\Omega$ $\parallel$ $\leq 80$\,fF diff. \\
+	I4 & DMIX $\approx 0.7$\,V; VGA 0.55\,V & 0.71\dots283\,mVpp diff. & $\geq 50$\,k$\Omega$ $\parallel$ $\leq 1$\,pF diff.\ (after 20\,pF series C per side) \\
+	I5 & \textbf{0.55\,V $\pm$ 30\,mV} & 283\,mVpp diff.\ (100\,mVrms) nominal, 1.0\,Vpp diff.\ full scale & ADC: 10\,k$\Omega$ diff.\ $\parallel$ 1\,pF per side \\
+	I6 & \textbf{0.55\,V $\pm$ 50\,mV} & 200\,mVpp diff.\ (70\,mVrms) nominal, 1.0\,Vpp diff.\ full scale & $\geq 10$\,k$\Omega$ $\parallel$ $\leq 1$\,pF diff.; DAC $R_\mathrm{s} = 200\,\Omega$ diff. \\
+	I8 & DRV gate $\approx 0.5$\,V, set by DRV & 0.2\,Vpp diff.\ (0.1\,V pk) & $\geq 1$\,k$\Omega$ $\parallel$ $\leq 150$\,fF diff. \\
+	I9 & PA gate $\approx 0.45$\,V, set by PA & 1.0\,Vpp diff.\ (0.5\,V pk) & $\geq 100\,\Omega$ $\parallel$ $\leq 1.0$\,pF diff. \\
+	I10 & drain at VDD\_PA = 2\,V & $+16$\,dBm (2.0\,V pk); $OP_\mathrm{1dB} \geq +24$\,dBm & 50\,$\Omega$, $|S_{22}| \leq -10$\,dB \\
 	\bottomrule
 \end{tabularx}\par\normalsize
 
@@ -81,6 +126,169 @@ I3 and I7 together, so the LO output load is the sum of both mixer inputs.
 
 \figplaceholder{Top-level testbench \texttt{trx\_top}}{fig:integrator-testbench}
 
+\subsection{Converter models at the baseband edges}\label{sec:integrator-converters}
+The project has no ADC or DAC. The testbench models them as below. The values
+are typical for a 20\,MHz Wi-Fi transceiver in a 1.1\,V, 40\,nm process.
+
+\par\medskip\noindent\small
+\begin{tabularx}{\textwidth}{@{}P{0.3\textwidth} L L@{}}
+	\toprule
+	\textbf{Parameter} & \textbf{ADC (RX, I5)} & \textbf{DAC (TX, I6)} \\
+	\midrule
+	Type & 10-bit SAR, 80\,MS/s (2$\times$ oversampled) & 10-bit current-steering, 160\,MS/s, with reconstruction filter \\
+	Full scale & 1.0\,Vpp diff.\ (0.5\,V pk diff.) & 1.0\,Vpp diff. \\
+	Common mode & 0.55\,V $\pm$ 30\,mV accepted & 0.55\,V $\pm$ 50\,mV delivered \\
+	ENOB / SNR & 9 bit / 56\,dB $\to$ 89\,nV/$\sqrt{\mathrm{Hz}}$ diff.\ input-referred & 9 bit \\
+	Nominal level & 100\,mVrms diff.\ ($-11$\,dBFS): OFDM PAPR 10\,dB + 4\,dB AGC margin & 70\,mVrms diff.\ ($-14$\,dBFS): set by UMIX linearity \\
+	Model in \texttt{trx\_top} & 5\,k$\Omega$ per side to 0.55\,V + 1\,pF per side to ground ($R \approx 1/(f_\mathrm{s} C_\mathrm{s})$) & ideal source, 100\,$\Omega$ per side, CM 0.55\,V \\
+	\bottomrule
+\end{tabularx}\par\normalsize
+
+\subsection{RX budget}\label{sec:integrator-budget}
+
+\paragraph{Gain and level plan.}
+Voltage gains are defined at the pins: LNA from the matched input pin (single-ended)
+to its differential output; mixer conversion gain from RF diff.\ amplitude to BB diff.\
+amplitude. The AGC target at the ADC is 100\,mVrms diff.\ (CW-equivalent).
+
+\par\medskip\noindent\small
+\begin{tabularx}{\textwidth}{@{}l c L L L@{}}
+	\toprule
+	\textbf{Node} & \textbf{Gain} & \textbf{$-82$\,dBm} & \textbf{$-30$\,dBm} & \textbf{$-22$\,dBm ($P_\mathrm{1dB}$ target)} \\
+	\midrule
+	RX input pin (SE) & -- & 50\,$\mu$Vpp & 20\,mVpp & 50\,mVpp \\
+	LNA out / DMIX in (diff.) & 15\,dB & 0.28\,mVpp & 112\,mVpp & 283\,mVpp \\
+	DMIX out / VGA in (diff.) & 8\,dB & 0.71\,mVpp & 283\,mVpp & 710\,mVpp \\
+	VGA out / ADC (diff.) & $+52$ / $0$ / $0$\,dB & 283\,mVpp & 283\,mVpp & 710\,mVpp (FS 1.0\,Vpp) \\
+	\bottomrule
+\end{tabularx}\par\normalsize
+
+\medskip
+\noindent The required VGA range is 52\,dB (0\dots52\,dB). The VGA gives
+$-2$\dots$+54$\,dB, so 2\,dB margin is left at each end for the PVT spread of the
+LNA and DMIX gain. The LNA has one gain mode (decision D5), so the whole range is in
+the VGA. At $-22$\,dBm with the gain still set for $-30$\,dBm the signal is 3\,dB
+below the ADC full scale, so the ADC does not clip before the analog chain compresses.
+
+\paragraph{Noise.}
+All contributions are referred to the RX input pin as noise voltage density.
+The source term is $kTR_\mathrm{s} = 2.0\cdot10^{-19}$\,V$^2$/Hz (0.447\,nV/$\sqrt{\mathrm{Hz}}$,
+matched 50\,$\Omega$, $T_0 = 290$\,K). A block with input-referred density $v_n$
+after voltage gain $G$ contributes $v_n^2/G^2$. NF is SSB (one mixer, the noise of
+both sidebands folds onto the wanted one), which is 3\,dB worse than the DSB value
+that an I/Q receiver would show. VGA at maximum gain:
+
+\par\medskip\noindent\small
+\begin{tabularx}{\textwidth}{@{}l l l L r@{}}
+	\toprule
+	\textbf{Block} & \textbf{Gain before} & \textbf{Own noise (budget)} & \textbf{Referred to input pin} & \textbf{Share} \\
+	\midrule
+	Source 50\,$\Omega$ & -- & -- & 0.447\,nV/$\sqrt{\mathrm{Hz}}$ & 19\,\% \\
+	LNA & 0\,dB & NF $\leq 2$\,dB & 0.342\,nV/$\sqrt{\mathrm{Hz}}$ & 11\,\% \\
+	DMIX & 15\,dB & $\leq 4.0$\,nV/$\sqrt{\mathrm{Hz}}$ diff.\ (SSB) & 0.711\,nV/$\sqrt{\mathrm{Hz}}$ & 47\,\% \\
+	VGA + LPF & 23\,dB & $\leq 7.0$\,nV/$\sqrt{\mathrm{Hz}}$ diff. & 0.496\,nV/$\sqrt{\mathrm{Hz}}$ & 23\,\% \\
+	ADC & 77\,dB & 89\,nV/$\sqrt{\mathrm{Hz}}$ diff. & 0.013\,nV/$\sqrt{\mathrm{Hz}}$ & $< 0.1$\,\% \\
+	\midrule
+	\textbf{Chain} & & & \textbf{NF$_\mathrm{SSB}$ = 7.3\,dB} (DSB $\approx 4.3$\,dB) & 100\,\% \\
+	\bottomrule
+\end{tabularx}\par\normalsize
+
+\medskip
+\noindent The input noise floor in 20\,MHz is $-93.7$\,dBm, so the SNR at $-82$\,dBm is
+11.7\,dB. With a single-mode 15\,dB LNA the DMIX dominates (47\,\%), so its
+noise budget is the tightest one in the RX. The 2.7\,dB margin to SYS-06 covers the
+transformer loss at I2, real inductor $Q$ in the LNA and the PVT corners. At minimum VGA
+gain the NF rises to $\approx 28$\,dB, but the input is then $\geq -30$\,dBm and the
+SNR is still $\approx 43$\,dB.
+
+\paragraph{Linearity.}
+Two-tone IIP3 of each block is referred to the RX input and summed as
+$1/\mathrm{IIP3} = \sum 1/\mathrm{IIP3}_{i,\mathrm{ref}}$ (in mW). The worst case is
+the minimum VGA gain, where the full $-30$\,dBm signal reaches the VGA. Block IIP3 on
+on-chip nodes is given as the \textbf{per-tone peak differential voltage at the block
+input} at the intercept point.
+
+\par\medskip\noindent\small
+\begin{tabularx}{\textwidth}{@{}l L l r@{}}
+	\toprule
+	\textbf{Block} & \textbf{Requirement} & \textbf{Referred to RX input} & \textbf{Share} \\
+	\midrule
+	LNA & IIP3 $\geq -4$\,dBm (50\,$\Omega$) & $-4.0$\,dBm & 18\,\% \\
+	DMIX & IIP3 $\geq 0.7$\,V pk diff.\ per tone at the RF input & $-8.1$\,dBm & 46\,\% \\
+	VGA (code 0, $-2$\,dB) & OIP3 $\geq 1.6$\,V pk diff.\ per tone & $-6.9$\,dBm & 35\,\% \\
+	\midrule
+	\textbf{Chain} & & \textbf{$-11.4$\,dBm} & 100\,\% \\
+	\bottomrule
+\end{tabularx}\par\normalsize
+
+\medskip
+\noindent The requirement is IIP3 $\geq -12$\,dBm, from $P_\mathrm{1dB,in} \geq -22$\,dBm
+($-30$\,dBm + 8\,dB) and IIP3 $\approx P_\mathrm{1dB} + 9.6$\,dB. The margin is only
+0.6\,dB, so \textbf{linearity, not noise, is the critical RX budget}. If the DMIX
+cannot reach 0.7\,V pk, the first remedy is a switchable LNA gain step
+(e.g.\ 15/3\,dB, revisiting D5). It costs no noise at sensitivity and gains
+$\approx 6$\,dB of IIP3.
+
+\paragraph{IIP2 and DC offset.}
+In direct conversion an AM interferer gives IM2 at DC and in band. BUD-04
+($+35$\,dBm) keeps IM2 from a $-30$\,dBm two-tone signal 65\,dB below the signal. In
+practice the DMIX mismatch sets IIP2. The DC offset from LO self-mixing is blocked
+by the AC coupling at I4 ($f_\mathrm{c} \leq 100$\,kHz, below the first Wi-Fi
+subcarrier at 312.5\,kHz). The VGA must cancel its own offset, because at 54\,dB a
+2\,mV input offset would saturate the output.
+
+\paragraph{Baseband filter.}
+The LPF is a 3rd-order Butterworth with $f_{-3\mathrm{dB}} = 12$\,MHz. It costs
+0.9\,dB at 9.4\,MHz (edge of the occupied band), gives 13.5\,dB at 20\,MHz (adjacent
+channel) and 46\,dB at 70\,MHz (the first ADC alias at $f_\mathrm{s} - 10$\,MHz).
+
+\subsection{TX budget}\label{tab:integrator-tx-levels}
+The TX is specified in voltages up to the PA input and in dBm at the antenna. Each
+stage before the PA has $\geq 10$\,dB back-off at the nominal level, so the PA alone
+sets the chain $P_\mathrm{1dB}$. Without I/Q both sidebands ($f_\mathrm{LO} \pm f_\mathrm{BB}$)
+leave the mixer at equal level. The $+16$\,dBm applies to the wanted sideband, and the
+PA and DRV are also characterised alone with an RF source.
+
+\par\medskip\noindent\small
+\begin{tabularx}{\textwidth}{@{}l l L L@{}}
+	\toprule
+	\textbf{Node} & \textbf{Gain} & \textbf{Nominal (CW)} & \textbf{Compression requirement} \\
+	\midrule
+	DAC out / UMIX in & -- & 70\,mVrms = 0.1\,V pk diff. & FS 0.5\,V pk diff. \\
+	UMIX + BPF out / DRV in & 0\,dB (wanted sideband) & 0.1\,V pk diff. & $OP_\mathrm{1dB} \geq 0.4$\,V pk diff.\ (12\,dB back-off) \\
+	DRV out / PA in & 14\,dB & 0.5\,V pk diff. & $OP_\mathrm{1dB} \geq 1.6$\,V pk diff.\ (10\,dB back-off) \\
+	PA out (50\,$\Omega$, SE) & 12\,dB (2.0\,V/0.5\,V) & $+16$\,dBm = 2.0\,V pk & $OP_\mathrm{1dB} \geq +24$\,dBm (5.0\,V pk); target $+25$\,dBm \\
+	\bottomrule
+\end{tabularx}\par\normalsize
+
+\medskip
+\noindent At the PA $P_\mathrm{1dB}$ its input is $0.5 \cdot 10^{9/20} = 1.41$\,V pk diff.
+The DRV must deliver this with $\geq 1$\,dB to spare, so it needs 1.6\,V pk. The DAC sits
+at $-14$\,dBFS. A 10-bit DAC still gives $\approx 42$\,dB SNR there, well above the
+$\approx 25$\,dB needed for 64-QAM, and the UMIX input stays small enough for the
+0.55\,V common mode at 1.1\,V supply.
+
+\subsection{Power budget}
+
+\par\medskip\noindent\small
+\begin{tabularx}{\textwidth}{@{}l l r r L@{}}
+	\toprule
+	\textbf{Mode} & \textbf{Block} & \textbf{$I$ [mA]} & \textbf{$P$ [mW]} & \textbf{Basis} \\
+	\midrule
+	RX & LNA & 8 & 8.8 & NF 2\,dB at 6\,GHz needs $g_m \approx 50$--60\,mS \\
+	RX & DMIX & 6 & 6.6 & Gilbert cell, $\approx 2.5$\,mA per side in the $g_m$ stage \\
+	RX & VGA + LPF & 10 & 11 & 3 stages + LPF + offset cancellation \\
+	RX & LO & 13 & 14.3 & LO-16/17 (owner's value) \\
+	\textbf{RX} & \textbf{total} & \textbf{37} & \textbf{40.7} & BUD-08 $\leq 45$\,mW \\
+	\midrule
+	TX & UMIX & 6 & 6.6 & as DMIX \\
+	TX & DRV & 25 & 27.5 & class A, 1.6\,V pk into $\geq 100\,\Omega$ diff.\ + transformer loss \\
+	TX & PA & 175 (2\,V) & 350 & PAE $\geq 10$\,\% at $+16$\,dBm \\
+	TX & LO & 13 & 14.3 & as RX \\
+	\textbf{TX} & \textbf{total} & & \textbf{398} & BUD-09 $\leq 400$\,mW \\
+	\bottomrule
+\end{tabularx}\par\normalsize
+
 \subsection{Budget and results}
 \placeholder{parameter / budget / stub / design / status table}
 
@@ -90,4 +298,8 @@ I3 and I7 together, so the LO output load is the sum of both mixer inputs.
 \begin{changelog}
 	\change{2026-11-12}{integrator}{Requirements v0.1 (budget and interfaces) from design proposal}{Starting point for meeting~2}{all}{proposed}
 	\change{2026-11-17}{integrator}{Requirements v0.1 $\to$ v0.2 (standard table)}{Changeover, see requirements\_changeover.md}{all}{proposed}
+	\change{2026-11-27}{integrator}{Requirements v0.4: derived budget BUD-01\dots09, ADC/DAC models, interface levels, RX noise/linearity cascade, TX level plan, power budget}{Fill TBD values so that each block can design alone}{all}{proposed}
+	\change{2026-11-27}{integrator}{Transformer centre tap: ``biases the receiver'' $\to$ secondary DC-floating, receiver biases its own gates}{No bias voltage may cross a block boundary (\specref{4})}{LNA, DMIX, UMIX, DRV, PA}{proposed}
+	\change{2026-11-27}{integrator}{I8: transformer or C + R $\to$ transformer as UMIX load (= BPF tank)}{Rule~1: UMIX already has an inductive load}{UMIX, DRV}{proposed}
+	\change{2026-11-27}{integrator}{Supply current and power: TBD $\to$ budget values (D10 reversed)}{Power budget is a team deliverable (\specref{3}, item~5)}{all}{proposed}
 \end{changelog}

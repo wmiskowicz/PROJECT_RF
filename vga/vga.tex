@@ -12,27 +12,37 @@
 
 % -----------------------------------------------------------------------------
 \section{Requirements}
-Source: project specification and requirements changeover v0.2.
+Source: project specification, requirements changeover v0.2 and the system budget v0.4
+(section~\ref{sec:integrator-budget}). Rows VGA-22 and VGA-23 are block-specific.
 
 \begin{requirements}
 	\req{VGA-01}{VDD}{1.1\,V}{SYS-04}
 	\req{VGA-02}{Input interface}{differential, I4}{I4}
-	\req{VGA-03}{Input coupling}{AC: C + R (VGA), $f_\mathrm{c} \approx 100$\,kHz}{I4}
-	\req{VGA-04}{Input DC voltage}{internal CM (VGA), TBD (for information only)}{I4}
-	\req{VGA-05}{Input signal}{TBD (from DMIX-10)}{I4}
-	\req{VGA-06}{Input impedance}{$R_\mathrm{in} \geq$ TBD $\parallel$ $C_\mathrm{in} \leq$ TBD}{I4}
+	\req{VGA-03}{Input coupling}{AC: C + R (VGA), $C \geq 20$\,pF MIM and $R \geq 80$\,k$\Omega$ per side, $f_\mathrm{c} \leq 100$\,kHz}{I4}
+	\req{VGA-04}{Input DC voltage}{internal, for information: input common mode 0.55\,V, set by the VGA through the coupling resistors}{I4}
+	\req{VGA-05}{Input signal}{0.71\dots283\,mVpp diff.\ nominal (DMIX-10); 710\,mVpp diff.\ at the RX $P_\mathrm{1dB}$ point}{I4}
+	\req{VGA-06}{Input impedance}{$R_\mathrm{in} \geq 50$\,k$\Omega$ $\parallel$ $C_\mathrm{in} \leq 1$\,pF diff.\ in band (behind the coupling capacitors); high-impedance first stage, not a resistive-input inverting amplifier (noise)}{I4}
 	\req{VGA-07}{Output interface}{differential, I5}{I5}
 	\req{VGA-08}{Output coupling}{DC}{I5}
-	\req{VGA-09}{Output DC voltage}{binding, TBD (proposed 0.55\,V = VDD/2); equals the ADC load common mode}{I5}
-	\req{VGA-10}{Output signal}{TBD (ADC full scale)}{I5}
-	\req{VGA-11}{Output impedance / load}{ADC load, TBD; $R_\mathrm{out}$ TBD}{I5}
-	\req{VGA-12}{Frequency / bandwidth}{BB 10\,MHz}{SYS-02}
-	\req{VGA-13}{Gain}{\textbf{range and step TBD}; must cover the whole $\geq 52$\,dB dynamic range (single-mode LNA)}{SYS-07}
-	\req{VGA-14}{Noise}{input-referred noise TBD\,nV/$\sqrt{\mathrm{Hz}}$}{}
-	\req{VGA-15}{Linearity}{IIP3 TBD (integrator budget)}{}
-	\req{VGA-16}{Supply current}{TBD}{}
-	\req{VGA-17}{Power consumption}{TBD}{}
+	\req{VGA-09}{Output DC voltage}{\textbf{binding: common mode 0.55\,V $\pm$ 30\,mV} (CMFB); differential offset $\leq \pm 10$\,mV at every gain code, which requires DC offset cancellation (servo loop, $f_\mathrm{c} \leq 100$\,kHz)}{I5}
+	\req{VGA-10}{Output signal}{AGC target 283\,mVpp diff.\ (100\,mVrms, $-11$\,dBFS); linear swing $\geq 1.0$\,Vpp diff.\ (ADC full scale) with HD3 $\leq -40$\,dBc}{I5}
+	\req{VGA-11}{Output impedance / load}{ADC model: 10\,k$\Omega$ diff.\ $\parallel$ 1\,pF per side to ground; $R_\mathrm{out} \leq 200\,\Omega$ diff.\ up to 10\,MHz}{I5}
+	\req{VGA-12}{Frequency / bandwidth}{VGA alone $-3$\,dB bandwidth $\geq 50$\,MHz at every code; the overall response is set by the LPF (VGA-22)}{SYS-02}
+	\req{VGA-13}{Gain}{\textbf{$-2$\dots$+54$\,dB in 2\,dB steps} (29 codes, \texttt{vga<4:0>} = 0\dots28, codes 29--31 = 54\,dB), LPF loss included; absolute error $\leq \pm 1$\,dB, step error $\leq \pm 0.3$\,dB, monotonic}{BUD-03}
+	\req{VGA-14}{Noise}{input-referred $\leq 7.0$\,nV/$\sqrt{\mathrm{Hz}}$ diff.\ at maximum gain (1--10\,MHz), $\leq 100$\,nV/$\sqrt{\mathrm{Hz}}$ diff.\ at minimum gain; $1/f$ corner $\leq 200$\,kHz}{BUD-01}
+	\req{VGA-15}{Linearity}{OIP3 $\geq 1.6$\,V pk diff.\ per tone at every code (at code 0: $-7$\,dBm referred to the RX input); $OP_\mathrm{1dB} \geq 0.5$\,V pk diff.}{BUD-02}
+	\req{VGA-16}{Supply current}{$\leq 10$\,mA incl.\ LPF and offset cancellation (budget)}{BUD-08}
+	\req{VGA-17}{Power consumption}{$\leq 11$\,mW}{BUD-08}
+	\req{VGA-22}{LPF response}{3rd-order Butterworth (or equivalent), $f_{-3\mathrm{dB}} = 12$\,MHz $\pm$ 10\,\% over PVT (trim allowed); attenuation $\geq 13$\,dB at 20\,MHz, $\geq 40$\,dB at 70\,MHz (ADC alias); in-band group-delay variation $\leq 50$\,ns}{SYS-02}
+	\req{VGA-23}{Gain control}{\texttt{vga<4:0>}, static CMOS 1.1\,V logic; gain settles to $\pm 0.5$\,dB within 1\,$\mu$s after a code change}{BUD-03}
 \end{requirements}
+
+\noindent\textit{Budget notes.} The VGA carries all the AGC range (single-mode LNA,
+D5). It needs 52\,dB and has 2\,dB margin at each end for front-end PVT spread. At
+maximum gain it holds 23\,\% of the RX noise. At minimum gain it holds 35\,\% of
+the IIP3 budget. A practical split is three DC-coupled stages of $\approx -1$\dots$+19$\,dB
+each, with the LPF poles spread between them. The offset loop (VGA-09) is not optional:
+54\,dB of gain on a 2\,mV stage offset would saturate the output.
 
 % -----------------------------------------------------------------------------
 \section{Overview}
@@ -57,4 +67,5 @@ Source: project specification and requirements changeover v0.2.
 \begin{changelog}
 	\change{2026-11-12}{integrator}{Requirements v0.1 from design proposal; LPF moved from DMIX to VGA designer}{Starting point for meeting~2 (decision~7)}{VGA, DMIX}{proposed}
 	\change{2026-11-17}{integrator}{Requirements v0.1 $\to$ v0.2 (standard table)}{Changeover, see requirements\_changeover.md}{VGA}{proposed}
+	\change{2026-11-27}{integrator}{Requirements v0.4: TBD $\to$ values (VGA-03\dots06, -09\dots-17); LPF (VGA-22) and gain control (VGA-23) rows added; ADC full scale 0.5 $\to$ 1.0\,Vpp diff.}{System budget and ADC model, section~\ref{sec:integrator-budget}}{VGA, DMIX}{proposed}
 \end{changelog}

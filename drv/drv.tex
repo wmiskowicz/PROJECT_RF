@@ -12,27 +12,32 @@
 
 % -----------------------------------------------------------------------------
 \section{Requirements}
-Source: project specification and requirements changeover v0.2.
+Source: project specification, requirements changeover v0.2 and the system budget v0.4
+(section~\ref{sec:integrator-budget}).
 
 \begin{requirements}
 	\req{DRV-01}{VDD}{1.1\,V}{SYS-04}
 	\req{DRV-02}{Input interface}{differential, I8}{I8}
-	\req{DRV-03}{Input coupling}{AC: transformer (UMIX) or C + R (DRV), see I8}{I8}
-	\req{DRV-04}{Input DC voltage}{TBD}{I8}
-	\req{DRV-05}{Input signal}{TBD (from UMIX-10)}{I8}
-	\req{DRV-06}{Input impedance}{$R_\mathrm{in} \geq$ TBD $\parallel$ $C_\mathrm{in} \leq$ TBD}{I8}
+	\req{DRV-03}{Input coupling}{AC: transformer (UMIX load), see UMIX-08}{I8}
+	\req{DRV-04}{Input DC voltage}{internal, for information: gate bias $\approx 0.5$\,V set by the DRV through $\geq 5$\,k$\Omega$ per side (UMIX secondary DC-floating)}{I8}
+	\req{DRV-05}{Input signal}{0.1\,V pk diff.\ nominal (UMIX-10); 0.32\,V pk diff.\ when the DRV is at its $OP_\mathrm{1dB}$}{I8}
+	\req{DRV-06}{Input impedance}{$R_\mathrm{in} \geq 1$\,k$\Omega$ $\parallel$ $C_\mathrm{in} \leq 150$\,fF diff.\ at 6\,GHz}{I8}
 	\req{DRV-07}{Output interface}{differential, I9}{I9}
 	\req{DRV-08}{Output coupling}{AC: transformer used as the DRV load (DRV); resonates the PA input capacitance}{I9}
-	\req{DRV-09}{Output DC voltage}{centre tap, set by the PA bias requirement (TBD with PA)}{I9}
-	\req{DRV-10}{Output signal}{TBD}{I9}
-	\req{DRV-11}{Output impedance / load}{PA input (PA-06), TBD}{I9}
-	\req{DRV-12}{Frequency / bandwidth}{6\,GHz $\pm$ 10\,MHz}{SYS-02}
-	\req{DRV-13}{Gain}{TBD}{}
+	\req{DRV-09}{Output DC voltage}{primary centre tap at VDD (drain peaks up to $\approx 2\,$VDD: cascode or thick-oxide device); secondary DC-floating, the PA biases its own gates (PA-04)}{I9}
+	\req{DRV-10}{Output signal}{0.5\,V pk diff.\ (1.0\,Vpp) at the PA gates for $+16$\,dBm at the antenna}{I9, BUD-06}
+	\req{DRV-11}{Output impedance / load}{PA input $R \geq 100\,\Omega$ $\parallel$ $C \leq 1.0$\,pF diff.\ (PA-06)}{I9}
+	\req{DRV-12}{Frequency / bandwidth}{6\,GHz $\pm$ 10\,MHz; gain flatness $\leq 0.5$\,dB in 5.99--6.01\,GHz}{SYS-02}
+	\req{DRV-13}{Gain}{\textbf{14\,dB $\pm$ 1.5\,dB} voltage gain (PA gate diff.\ / DRV input diff.), transformer included}{BUD-06}
 	\req{DRV-14}{Noise}{N/A}{}
-	\req{DRV-15}{Linearity}{OP1dB TBD (dBm)}{}
-	\req{DRV-16}{Supply current}{TBD}{}
-	\req{DRV-17}{Power consumption}{TBD}{}
+	\req{DRV-15}{Linearity}{$OP_\mathrm{1dB} \geq 1.6$\,V pk diff.\ at the PA gates (10\,dB above nominal, 1\,dB above the PA input at the PA $P_\mathrm{1dB}$)}{BUD-05}
+	\req{DRV-16}{Supply current}{$\leq 25$\,mA (budget)}{BUD-09}
+	\req{DRV-17}{Power consumption}{$\leq 27.5$\,mW}{BUD-09}
 \end{requirements}
+
+\noindent\textit{Budget notes.} The PA input needs 1.41\,V pk diff.\ at the PA
+$P_\mathrm{1dB}$. A 1:1.5 to 1:2 step-up transformer lets the DRV meet DRV-15 with
+$\leq 0.55$\,V pk per side on its own drains at 1.1\,V.
 
 % -----------------------------------------------------------------------------
 \section{Overview}
@@ -57,4 +62,6 @@ Source: project specification and requirements changeover v0.2.
 \begin{changelog}
 	\change{2026-11-12}{integrator}{Requirements v0.1 from design proposal}{Starting point for meeting~2}{DRV}{proposed}
 	\change{2026-11-17}{integrator}{Requirements v0.1 $\to$ v0.2 (standard table)}{Changeover, see requirements\_changeover.md}{DRV}{proposed}
+	\change{2026-11-27}{integrator}{Requirements v0.4: TBD $\to$ values (DRV-03\dots06, -09\dots-13, -15\dots-17)}{TX level plan, section~\ref{tab:integrator-tx-levels}}{DRV, UMIX, PA}{proposed}
+	\change{2026-11-27}{integrator}{DRV-09: centre tap biases PA $\to$ secondary DC-floating}{No bias voltage across block boundary (\specref{4})}{DRV, PA}{proposed}
 \end{changelog}

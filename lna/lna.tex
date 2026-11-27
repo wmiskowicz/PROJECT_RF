@@ -12,27 +12,34 @@
 
 % -----------------------------------------------------------------------------
 \section{Requirements}
-Source: project specification and requirements changeover v0.2.
+Source: project specification, requirements changeover v0.2 and the system budget v0.4
+(section~\ref{sec:integrator-budget}).
 
 \begin{requirements}
 	\req{LNA-01}{VDD}{1.1\,V}{SYS-04}
 	\req{LNA-02}{Input interface}{single-ended, I1}{I1}
 	\req{LNA-03}{Input coupling}{AC: series C in the input match (LNA)}{I1}
-	\req{LNA-04}{Input DC voltage}{internal (gate bias through a resistor), TBD, for information only}{I1}
-	\req{LNA-05}{Input signal}{$-82$\dots$-30$\,dBm ($\approx 50\,\mu$Vpp\dots20\,mVpp at the matched pin, SE)}{SYS-07}
-	\req{LNA-06}{Input impedance}{50\,$\Omega$, $|S_{11}| \leq -10$\,dB, 5.9--6.1\,GHz}{I1}
+	\req{LNA-04}{Input DC voltage}{internal, for information: gate bias $\approx 0.45$\,V through a resistor $\geq 5$\,k$\Omega$ from the LNA's own current mirror}{I1}
+	\req{LNA-05}{Input signal}{$-82$\dots$-30$\,dBm ($\approx 50\,\mu$Vpp\dots20\,mVpp at the matched pin, SE); linear up to $-22$\,dBm}{SYS-07}
+	\req{LNA-06}{Input impedance}{50\,$\Omega$, $|S_{11}| \leq -10$\,dB, 5.9--6.1\,GHz (incl.\ 100\,fF pad/ESD)}{I1}
 	\req{LNA-07}{Output interface}{differential, I2}{I2}
 	\req{LNA-08}{Output coupling}{AC: transformer used as the LNA load (LNA)}{I2}
-	\req{LNA-09}{Output DC voltage}{centre tap, set by the DMIX bias requirement (TBD with DMIX)}{I2}
-	\req{LNA-10}{Output signal}{$\approx 0.28$\,mVpp\dots112\,mVpp diff.\ (15\,dB above the input)}{I2}
-	\req{LNA-11}{Output impedance / load}{DMIX input (DMIX-06), TBD; earlier estimate $C \leq 80$\,fF diff.}{I2}
-	\req{LNA-12}{Frequency / bandwidth}{6\,GHz $\pm$ 10\,MHz}{SYS-02}
-	\req{LNA-13}{Gain}{\textbf{15\,dB} voltage gain (single gain mode)}{SYS-06}
-	\req{LNA-14}{Noise}{NF $\leq$ 2\,dB}{SYS-06}
-	\req{LNA-15}{Linearity}{IIP3 TBD (integrator budget); the chain must reach $P_\mathrm{1dB,in} \geq -22$\,dBm ($-30$\,dBm + 8\,dB back-off), so the LNA needs at least this headroom}{SYS-07}
-	\req{LNA-16}{Supply current}{TBD}{}
-	\req{LNA-17}{Power consumption}{TBD}{}
+	\req{LNA-09}{Output DC voltage}{primary centre tap at VDD; \textbf{secondary DC-floating} (centre tap AC-grounded only, $\geq 2$\,pF). The DMIX sets 0.55\,V on its gates (DMIX-04)}{I2}
+	\req{LNA-10}{Output signal}{0.28\dots112\,mVpp diff.\ nominal; 283\,mVpp diff.\ at $-22$\,dBm input}{I2}
+	\req{LNA-11}{Output impedance / load}{DMIX input: $R \geq 2$\,k$\Omega$ $\parallel$ $C \leq 80$\,fF diff.\ (DMIX-06); the tank resonates this $C$ at 6\,GHz}{I2}
+	\req{LNA-12}{Frequency / bandwidth}{6\,GHz $\pm$ 10\,MHz; gain flatness $\leq 0.5$\,dB in 5.99--6.01\,GHz}{SYS-02}
+	\req{LNA-13}{Gain}{\textbf{15\,dB $\pm$ 1\,dB} voltage gain, $V_\mathrm{out,diff}/V_\mathrm{in}$ at the matched pin (single gain mode); reverse isolation $|S_{12}| \leq -30$\,dB}{BUD-03}
+	\req{LNA-14}{Noise}{NF $\leq$ 2\,dB (50\,$\Omega$ source, 5.99--6.01\,GHz)}{BUD-01}
+	\req{LNA-15}{Linearity}{IIP3 $\geq -4$\,dBm (two tones, 50\,$\Omega$); $IP_\mathrm{1dB} \geq -14$\,dBm}{BUD-02}
+	\req{LNA-16}{Supply current}{$\leq 8$\,mA (budget)}{BUD-08}
+	\req{LNA-17}{Power consumption}{$\leq 8.8$\,mW}{BUD-08}
 \end{requirements}
+
+\noindent\textit{Budget notes.} The LNA carries 11\,\% of the RX output noise
+(14\,\% of the excess noise) and 18\,\% of the RX IIP3 budget. The 15\,dB gain is the
+supervisor's starting point (D11). Each extra dB of LNA gain lowers the
+DMIX share of the noise. $|S_{12}| \leq -30$\,dB keeps the LO leakage of the DMIX from
+reaching the antenna ($\leq -70$\,dBm) and limits self-mixing.
 
 % -----------------------------------------------------------------------------
 \section{Overview}
@@ -57,4 +64,6 @@ Source: project specification and requirements changeover v0.2.
 \begin{changelog}
 	\change{2026-11-12}{integrator}{Requirements v0.1 from design proposal}{Starting point for meeting~2}{LNA}{proposed}
 	\change{2026-11-17}{integrator}{Requirements v0.1 $\to$ v0.2 (standard table)}{Changeover, see requirements\_changeover.md}{LNA}{proposed}
+	\change{2026-11-27}{integrator}{Requirements v0.4: TBD $\to$ values (LNA-04, -09\dots-11, -13, -15\dots-17); gain tolerance and $|S_{12}|$ added}{System budget, section~\ref{sec:integrator-budget}}{LNA, DMIX}{proposed}
+	\change{2026-11-27}{integrator}{LNA-09: centre tap biases DMIX $\to$ secondary DC-floating}{No bias voltage across block boundary (\specref{4})}{LNA, DMIX}{proposed}
 \end{changelog}

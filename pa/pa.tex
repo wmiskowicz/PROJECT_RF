@@ -12,28 +12,36 @@
 
 % -----------------------------------------------------------------------------
 \section{Requirements}
-Source: project specification and requirements changeover v0.2.
+Source: project specification, requirements changeover v0.2 and the system budget v0.4
+(section~\ref{sec:integrator-budget}).
 
 \begin{requirements}
 	\req{PA-01}{VDD}{2\,V (VDD\_PA)}{SYS-04}
 	\req{PA-02}{Input interface}{differential, I9}{I9}
 	\req{PA-03}{Input coupling}{AC: transformer (DRV), see DRV-08}{I9}
-	\req{PA-04}{Input DC voltage}{centre tap, TBD (agree with DRV)}{I9}
-	\req{PA-05}{Input signal}{TBD (from DRV-10)}{I9}
-	\req{PA-06}{Input impedance}{$R_\mathrm{in} \geq$ TBD $\parallel$ $C_\mathrm{in} \leq$ TBD (earlier estimate $C \leq 500$\,fF diff.)}{I9}
+	\req{PA-04}{Input DC voltage}{internal, for information: class-AB gate bias $\approx 0.45$\,V from the PA's own replica mirror through $\geq 2$\,k$\Omega$ per side (DRV secondary DC-floating)}{I9}
+	\req{PA-05}{Input signal}{0.5\,V pk diff.\ nominal (DRV-10); 1.41\,V pk diff.\ at $OP_\mathrm{1dB}$ (gate oxide stress to be checked)}{I9}
+	\req{PA-06}{Input impedance}{$R_\mathrm{in} \geq 100\,\Omega$ $\parallel$ $C_\mathrm{in} \leq 1.0$\,pF diff.\ at 6\,GHz}{I9}
 	\req{PA-07}{Output interface}{differential to single-ended, I10}{I10}
 	\req{PA-08}{Output coupling}{AC: output transformer / matching network (PA)}{I10}
-	\req{PA-09}{Output DC voltage}{internal, TBD (for information only)}{I10}
-	\req{PA-10}{Output signal}{$+16$\,dBm average into 50\,$\Omega$}{SYS-08}
-	\req{PA-11}{Output impedance / load}{50\,$\Omega$, $|S_{22}| \leq -10$\,dB, 5.9--6.1\,GHz}{I10}
-	\req{PA-12}{Frequency / bandwidth}{6\,GHz $\pm$ 10\,MHz}{SYS-02}
-	\req{PA-13}{Gain}{TBD}{}
+	\req{PA-09}{Output DC voltage}{internal, for information: drains at VDD\_PA = 2\,V through the output transformer centre tap; peak drain voltage $\leq$ device stress limit (thick-oxide or cascode)}{I10}
+	\req{PA-10}{Output signal}{$+16$\,dBm average into 50\,$\Omega$ (2.0\,V pk), wanted sideband}{SYS-08}
+	\req{PA-11}{Output impedance / load}{50\,$\Omega$, $|S_{22}| \leq -10$\,dB, 5.9--6.1\,GHz (incl.\ 100\,fF pad)}{I10}
+	\req{PA-12}{Frequency / bandwidth}{6\,GHz $\pm$ 10\,MHz; gain flatness $\leq 0.5$\,dB in 5.99--6.01\,GHz}{SYS-02}
+	\req{PA-13}{Gain}{\textbf{12\,dB $\pm$ 1.5\,dB} voltage gain ($V_\mathrm{out}$ pk at 50\,$\Omega$ / $V_\mathrm{in}$ pk diff.\ at the gates) at $+16$\,dBm}{BUD-06}
 	\req{PA-14}{Noise}{N/A}{}
-	\req{PA-15}{Linearity}{OP1dB $\geq +24$\,dBm (8\,dB back-off)}{SYS-08}
-	\req{PA-16}{Supply current}{TBD}{}
-	\req{PA-17}{Power consumption}{TBD}{}
-	\req{PA-18}{PAE}{TBD (PAE at $+16$\,dBm)}{}
+	\req{PA-15}{Linearity}{$OP_\mathrm{1dB} \geq +24$\,dBm (8\,dB back-off), design target $+25$\,dBm; two tones of $+13$\,dBm each: IM3 $\leq -35$\,dBc; H2, H3 $\leq -30$\,dBc; EVM $\leq -25$\,dB (64-QAM OFDM, PAPR $\approx 10$\,dB, $+16$\,dBm)}{SYS-08, BUD-05}
+	\req{PA-16}{Supply current}{$\leq 175$\,mA from VDD\_PA (budget)}{BUD-09}
+	\req{PA-17}{Power consumption}{$\leq 350$\,mW}{BUD-09}
+	\req{PA-18}{PAE}{$\geq 10$\,\% at $+16$\,dBm}{BUD-09}
 \end{requirements}
+
+\noindent\textit{Budget notes.} $+24$\,dBm is 5.0\,V pk at 50\,$\Omega$. At 2\,V
+supply the drain swing per side is $\approx 1.6$\,V pk, so the output network must
+transform 50\,$\Omega$ to $\approx 10$--20\,$\Omega$ diff. The $+25$\,dBm target
+absorbs the residual compression of the DRV and UMIX and 1--1.5\,dB of output
+transformer loss. PA-06 was raised from 500\,fF to 1.0\,pF. A gain of 12\,dB at
+0.5\,V pk input needs $g_m$ of a few hundred mS, which a 500\,fF device cannot give.
 
 % -----------------------------------------------------------------------------
 \section{Overview}
@@ -58,4 +66,5 @@ Source: project specification and requirements changeover v0.2.
 \begin{changelog}
 	\change{2026-11-12}{integrator}{Requirements v0.1 from design proposal}{Starting point for meeting~2}{PA}{proposed}
 	\change{2026-11-17}{integrator}{Requirements v0.1 $\to$ v0.2 (standard table)}{Changeover, see requirements\_changeover.md}{PA}{proposed}
+	\change{2026-11-27}{integrator}{Requirements v0.4: TBD $\to$ values (PA-04\dots06, -09, -13, -15\dots-18); $C_\mathrm{in}$ 500\,fF $\to$ 1.0\,pF diff.; IM3, harmonics and EVM added to PA-15}{TX level plan, section~\ref{tab:integrator-tx-levels}}{PA, DRV}{proposed}
 \end{changelog}

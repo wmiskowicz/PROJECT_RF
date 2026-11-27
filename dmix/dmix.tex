@@ -12,30 +12,45 @@
 
 % -----------------------------------------------------------------------------
 \section{Requirements}
-Source: project specification and requirements changeover v0.2.
+Source: project specification, requirements changeover v0.2 and the system budget v0.4
+(section~\ref{sec:integrator-budget}).
 
 \begin{requirements}
 	\req{DMIX-01}{VDD}{1.1\,V}{SYS-04}
 	\req{DMIX-02}{Input interface}{differential, I2}{I2}
 	\req{DMIX-03}{Input coupling}{AC: transformer (LNA), see LNA-08}{I2}
-	\req{DMIX-04}{Input DC voltage}{centre tap, TBD (agree with LNA)}{I2}
-	\req{DMIX-05}{Input signal}{$\approx 0.28$\,mVpp\dots112\,mVpp diff.\ (from LNA-10)}{I2}
-	\req{DMIX-06}{Input impedance}{$R_\mathrm{in} \geq$ TBD $\parallel$ $C_\mathrm{in} \leq$ TBD (earlier estimate $C \leq 80$\,fF diff.)}{I2}
+	\req{DMIX-04}{Input DC voltage}{0.55\,V on the RF gates, set \textbf{inside the DMIX} ($\geq 10$\,k$\Omega$ per side); LNA secondary DC-floating}{I2}
+	\req{DMIX-05}{Input signal}{0.28\dots112\,mVpp diff.\ (LNA-10); 283\,mVpp at $P_\mathrm{1dB}$}{I2}
+	\req{DMIX-06}{Input impedance}{$R_\mathrm{in} \geq 2$\,k$\Omega$ $\parallel$ $C_\mathrm{in} \leq 80$\,fF diff.\ at 6\,GHz}{I2}
 	\req{DMIX-07}{Output interface}{differential, I4}{I4}
-	\req{DMIX-08}{Output coupling}{AC: C + R, $f_\mathrm{c} \approx 100$\,kHz (VGA)}{I4}
-	\req{DMIX-09}{Output DC voltage}{internal, TBD (for information only)}{I4}
-	\req{DMIX-10}{Output signal}{TBD (from conversion gain)}{I4}
-	\req{DMIX-11}{Output impedance / load}{VGA input (VGA-06), TBD; state $R_\mathrm{out}$}{I4}
-	\req{DMIX-12}{Frequency / bandwidth}{RF 6\,GHz $\pm$ 10\,MHz; BB 10\,MHz}{SYS-02}
-	\req{DMIX-13}{Gain}{conversion gain TBD (voltage, BB out / RF in)}{}
-	\req{DMIX-14}{Noise}{NF TBD (SSB)}{}
-	\req{DMIX-15}{Linearity}{IIP3 TBD (integrator budget)}{}
-	\req{DMIX-16}{Supply current}{TBD}{}
-	\req{DMIX-17}{Power consumption}{TBD}{}
+	\req{DMIX-08}{Output coupling}{AC: C + R, $f_\mathrm{c} \leq 100$\,kHz (VGA)}{I4}
+	\req{DMIX-09}{Output DC voltage}{internal, $\approx 0.7$\,V (information); offset $\leq \pm 20$\,mV diff.}{I4}
+	\req{DMIX-10}{Output signal}{0.71\dots283\,mVpp diff.; 710\,mVpp at $P_\mathrm{1dB}$}{I4}
+	\req{DMIX-11}{Output impedance / load}{VGA-06 ($\geq 50$\,k$\Omega$ $\parallel$ $\leq 1$\,pF diff.); $R_\mathrm{out} \leq 2$\,k$\Omega$ diff.}{I4}
+	\req{DMIX-12}{Frequency / bandwidth}{RF 6\,GHz $\pm$ 10\,MHz; BB $-3$\,dB at 30--100\,MHz (one real pole), flat to 0.5\,dB up to 10\,MHz}{SYS-02}
+	\req{DMIX-13}{Gain}{conversion gain \textbf{8\,dB $\pm$ 1\,dB} (voltage, BB diff.\ / RF diff.)}{BUD-03}
+	\req{DMIX-14}{Noise}{$\leq 4.0$\,nV/$\sqrt{\mathrm{Hz}}$ diff.\ input-referred, SSB, 1--10\,MHz ($\equiv$ NF$_\mathrm{SSB} \leq 10.4$\,dB, 100\,$\Omega$ diff.\ source); $1/f$ corner $\leq 500$\,kHz}{BUD-01}
+	\req{DMIX-15}{Linearity}{IIP3 $\geq 0.7$\,V pk diff.\ per tone ($-8$\,dBm at RX input); IIP2 $\geq +35$\,dBm at RX input, 1\,\% mismatch}{BUD-02, BUD-04}
+	\req{DMIX-16}{Supply current}{$\leq 6$\,mA (budget)}{BUD-08}
+	\req{DMIX-17}{Power consumption}{$\leq 6.6$\,mW}{BUD-08}
 	\req{DMIX-19}{LO input interface / coupling}{differential, AC: C + R (DMIX), I3}{I3}
-	\req{DMIX-20}{LO input amplitude}{TBD\,Vpp diff.\ (agree with LO)}{I3}
-	\req{DMIX-21}{LO input impedance}{$R \parallel C$ TBD (seen by the LO buffer)}{I3}
+	\req{DMIX-20}{LO input amplitude}{1.0\,Vpp diff.; DMIX-13\dots15 met over 0.8\dots1.2\,Vpp}{I3, BUD-07}
+	\req{DMIX-21}{LO input impedance}{$R \geq 5$\,k$\Omega$ $\parallel$ $C \leq 80$\,fF diff.; LO leakage to RF input $\leq 3$\,mV pk diff.}{I3}
 \end{requirements}
+
+\noindent\textit{Budget notes.} The DMIX is the largest noise contributor
+(47\,\% of the RX output noise) and the largest IIP3 contributor (46\,\%), so DMIX-14
+and DMIX-15 are the tightest numbers in the RX. A double-balanced Gilbert cell with a
+source-degenerated $g_m$ stage and resistive + capacitive load fits the budget. A
+current-mode passive mixer with a TIA is the fallback if DMIX-15 cannot be met. In that
+case the integrator rechecks DMIX-04 and DMIX-09. The conversion gain is held at 8\,dB
+because the 710\,mVpp diff.\ output at $-22$\,dBm is the largest swing a 1.1\,V resistive
+load can carry. A higher gain lowers the noise but costs compression.
+Details behind the short rows: with a tail current source the DMIX must tolerate
+$\pm 50$\,mV on its RF gates (DMIX-04); the noise in DMIX-14 includes the image-band
+noise folded by the single mixer; the output pole (DMIX-12) attenuates LO and 2LO
+feedthrough; IIP3 0.7\,V pk diff.\ is $\approx +4$\,dBm re 100\,$\Omega$ diff.; the
+LO leakage limit (DMIX-21) gives $\leq -70$\,dBm at the antenna through LNA-13.
 
 \noindent\textit{Note:} the LPF is assigned to the VGA designer in the design
 proposal (decision~7, \dpref{13}); by default in the specification it belongs
@@ -64,4 +79,6 @@ to DMIX.
 \begin{changelog}
 	\change{2026-11-12}{integrator}{Requirements v0.1 from design proposal}{Starting point for meeting~2}{DMIX}{proposed}
 	\change{2026-11-17}{integrator}{Requirements v0.1 $\to$ v0.2 (standard table)}{Changeover, see requirements\_changeover.md}{DMIX}{proposed}
+	\change{2026-11-27}{integrator}{Requirements v0.4: TBD $\to$ values (DMIX-04\dots06, -09\dots-17, -20, -21); IIP2, DC offset and LO leakage added}{System budget, section~\ref{sec:integrator-budget}}{DMIX, LNA, VGA, LO}{proposed}
+	\change{2026-11-27}{integrator}{DMIX-04: bias from LNA centre tap $\to$ DMIX biases its own RF gates}{No bias voltage across block boundary (\specref{4})}{DMIX, LNA}{proposed}
 \end{changelog}
